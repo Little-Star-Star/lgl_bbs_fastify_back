@@ -28,3 +28,18 @@ exports.addCarSchema = {
     }
   }
 }
+
+exports.getCarSchema = {
+  description:'get all cars',
+  tags:['cars','else'],
+  summary:'get all cars —— title',
+  response:{
+    200:{
+      description:'get all cars successfully',
+      type:'object',
+      properties:{
+        _id:{type:'string'}
+      }
+    }
+  }
+}

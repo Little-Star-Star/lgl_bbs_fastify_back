@@ -7,7 +7,12 @@ const Car = require('../models/Car')
 // Get all cars
 exports.getCars = async (req, reply) => {
   try {
-    const cars = await Car.find()
+    const cars = await Car.find({},{_id:0},(err,result)=>{
+      if(err) throw err
+      console.log(result)
+    })
+    console.log(cars)
+    
     return cars
   } catch (err) {
     throw boom.boomify(err)

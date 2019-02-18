@@ -9,7 +9,8 @@ const carSchema = new mongoose.Schema({
   services: {
     type: Map,
     of: String
-  }
+  },
+  
 })
 
-module.exports = mongoose.model('Car', carSchema)
+module.exports = mongoose.model('Car', carSchema,'mycollection')
