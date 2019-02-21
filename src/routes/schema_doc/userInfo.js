@@ -5,10 +5,13 @@ exports.schema_adminGetAllUsersInfo = {
 	response:{
 		200:{
 			description:'OK',
-			type: 'object',
-			properties:{
-				high: { type: 'number' }, //身高
-				weight: { type: 'number' }, //体重
+			type: 'array',
+			items:{
+				type:'object',
+				properties:{
+					high:{type:'number'},
+					account:'account#'
+				}
 			}
 		}
 	}

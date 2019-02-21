@@ -1,10 +1,10 @@
 const Mock = require('mockjs')
 
-const UserInfoModel = require('../models/userInfo')
+const model_userInfo = require('../models/userInfo')
 
 function mock_userInfo(){
 	for(let i = 0; i < 10; i++) {
-		new UserInfoModel(Mock.mock({
+		new model_userInfo(Mock.mock({
 			'headSrc':/\/img\/avatar\/[a-zA-Z0-9_\-]{3,10}\.(png|jpg|jpeg)/,
 			'nickname':Mock.mock('@cword(3,10)'),
 			'sex|1':true,

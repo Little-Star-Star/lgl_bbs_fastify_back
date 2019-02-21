@@ -18,7 +18,7 @@ exports.options = {
     // },
     host: 'localhost:3000',
     schemes: ['http'],
-    consumes: ['application/json'],
-    produces: ['application/json']
+    consumes: ['application/json;charset=utf-8'],
+    produces: ['application/json;charset=utf-8']
   }
 }

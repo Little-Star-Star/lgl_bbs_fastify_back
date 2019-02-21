@@ -6,8 +6,7 @@ const fastify = require('fastify')({
 // Require external modules
 const mongoose = require('mongoose')
 
-// Import Routes
-const routes = require('./routes')
+
 
 
 // Import Swagger Options
@@ -23,6 +22,7 @@ mongoose.connect('mongodb://localhost:27017/school_bbs',{ useNewUrlParser: true 
     console.log('MongoDB connected...')
   })
   .catch(err => console.log(err))
+
 
 // 使用model并保存到数据库
 // let TestModel = mongoose.model('TestModel',new mongoose.Schema({test:'string'}),'helele')
@@ -41,6 +41,19 @@ mongoose.connect('mongodb://localhost:27017/school_bbs',{ useNewUrlParser: true 
 // })
 // require('./mock/UserInfo')()
 
+// mock account
+// require('./models/account').remove((err,product)=>{
+//   if(err)throw err
+//   console.log('delete account success')
+//   console.log(product)
+// })
+// require('./mock/account')()
+
+//添加通用schema
+fastify.addSchema(require('./common/schema/account.js'))
+
+// Import Routes
+const routes = require('./routes')
 // Loop over each route
 routes.forEach((route, index) => {
   fastify.route(route)
@@ -58,3 +71,4 @@ const start = async () => {
   }
 }
 start()
+

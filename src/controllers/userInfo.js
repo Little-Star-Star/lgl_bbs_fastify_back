@@ -12,10 +12,11 @@ exports.adminGetAllUsersInfo = async (req, reply) => {
 	try {
 		const allUserInfos = await model_userInfo.find({},{_id:0})
 		// console.log(allUserInfos)
+		console.log(typeof allUserInfos)
 		reply
 			.code(200)
 			.header('Content-Type','application/json; charset=utf-8')
-			.send({ hello: 'world' })
+			.send(allUserInfos)
 	} catch (error) {
 		throw boom.boomify(error)
 	}
