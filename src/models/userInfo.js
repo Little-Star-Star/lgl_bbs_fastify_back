@@ -5,6 +5,7 @@ const model_account = require('./account')
 // 建立用户个人信息模型
 
 const userInfoSchema = new monogoose.Schema({
+	id:{type:Number},
 	headSrc: { type: String, default: '/img/default/head.png' },
 	nickname: { type: String },
 	sex: { type: Boolean, default: true }, //默认性别：男性
@@ -19,7 +20,7 @@ const userInfoSchema = new monogoose.Schema({
 	type: { type: String }, //自我类型选择或自定义
 	TaInHeart: { type: String}, //心中的Ta的描述
 	beautifulImgs: { type: [String]}, //照片墙，精选照片
-	account:{	type: Object, ref: model_account }
+	account:{	type: Object, ref: model_account}
 })
 
 module.exports = monogoose.model('UserInfo',userInfoSchema,'userinfo')

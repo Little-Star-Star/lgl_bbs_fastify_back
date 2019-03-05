@@ -1,10 +1,24 @@
+/*
+ * @Author: 李国亮 
+ * @Date: 2019-03-05 17:18:55 
+ * @Last Modified by: 李国亮
+ * @Last Modified time: 2019-03-05 17:25:05
+ */
+// mock 用户信息，account嵌入其中
 const Mock = require('mockjs')
 
 const model_userInfo = require('../models/userInfo')
-
+const idAdd = require('../common/tool').idAdd
+const crypto = require('crypto')
+const encode = function () {
+	return crypto.createHmac('sha256', 'light')
+		.update('i love xujia')
+		.digest('hex')
+}
 function mock_userInfo(){
 	for(let i = 0; i < 10; i++) {
 		new model_userInfo(Mock.mock({
+			'id':idAdd(),
 			'headSrc':/\/img\/avatar\/[a-zA-Z0-9_\-]{3,10}\.(png|jpg|jpeg)/,
 			'nickname':Mock.mock('@cword(3,10)'),
 			'sex|1':true,
@@ -17,7 +31,13 @@ function mock_userInfo(){
 			'city':Mock.mock('@city(true)'),
 			'hometown':Mock.mock('@city(true)'),
 			'TaInHeart':Mock.mock('@cparagraph(1, 3)'),
-			'beautifulImgs|9':[/\/img\/avatar\/[a-zA-Z0-9_\-]{3,10}\.(png|jpg|jpeg)/]
+			'beautifulImgs|9':[/\/img\/avatar\/[a-zA-Z0-9_\-]{3,10}\.(png|jpg|jpeg)/],
+			'account':{
+				'mobile': /^1(3|4|5|7|8)\d{9}$/,
+				'email': Mock.mock('@email()'),
+				'psw': encode(),
+				'type|1':['admin','user']
+			}
 		})).save((err)=>{
 			if(err) throw err
 			console.log('mock user infos save')

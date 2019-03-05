@@ -5,19 +5,25 @@ const fastify = require('fastify')({
 
 // Require external modules
 const mongoose = require('mongoose')
-
-
+const path = require('path')
 
 
 // Import Swagger Options
 const swagger = require('./config/swagger')
 
 // Register Swagger
+swagger.options.routePrefix = 'account'
 fastify.register(require('fastify-swagger'), swagger.options)
 
-fastify.use(require('cors')())
-// Connect to DB
-mongoose.connect('mongodb://localhost:27017/school_bbs',{ useNewUrlParser: true })
+fastify.register(require('fastify-static'), {
+  root: path.join(__dirname,'../assets'),
+})
+fastify.use(require('cors')()) //允许跨域
+
+
+
+// Connect to DB-light:用户，只有操作school_bbs数据库的权限
+mongoose.connect('mongodb://light:834159672@localhost:27017/school_bbs',{ useNewUrlParser: true })
   .then(() => {
     console.log('MongoDB connected...')
   })
@@ -32,33 +38,29 @@ mongoose.connect('mongodb://localhost:27017/school_bbs',{ useNewUrlParser: true 
 //   console.log('save success')
 // })
 
-// mock user 信息
+// // mock user 信息
 
-// require('./models/UserInfo').remove((err,product)=>{
+// require('./models/userInfo').remove((err,product)=>{
 //   if(err)throw err
 //   console.log('delete userinfos success')
 //   console.log(product)
 // })
-// require('./mock/UserInfo')()
+// require('./mock/userInfo')()
 
-// mock account
-// require('./models/account').remove((err,product)=>{
-//   if(err)throw err
-//   console.log('delete account success')
-//   console.log(product)
-// })
-// require('./mock/account')()
+
 
 //添加通用schema
 fastify.addSchema(require('./common/schema/account.js'))
+fastify.addSchema(require('./common/schema/res200'))
 
-// Import Routes
-const routes = require('./routes')
-// Loop over each route
-routes.forEach((route, index) => {
+// 注册每个路由
+const allRoutes = require('./routes')
+allRoutes.routes_account.forEach((route, index) => {
   fastify.route(route)
 })
-
+allRoutes.routes_userInfo.forEach((route, index) => {
+  fastify.route(route)
+})
 // Run the server!
 const start = async () => {
   try {

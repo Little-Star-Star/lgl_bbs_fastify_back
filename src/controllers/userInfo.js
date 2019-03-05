@@ -1,6 +1,14 @@
 const boom = require('boom')
 const model_userInfo = require('../models/userInfo')
 
+const idAdd = require('../common/tool').idAdd
+
+const crypto = require('crypto')
+const encode = function () {
+	return crypto.createHmac('sha256', 'light')
+		.update('i love xujia')
+		.digest('hex')
+}
 
 /**
  * 管理员用户可以获取所有用户信息

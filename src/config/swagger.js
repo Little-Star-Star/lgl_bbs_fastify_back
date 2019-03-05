@@ -1,10 +1,10 @@
 exports.options = {
-  routePrefix: '/user',
+  routePrefix: '/account',
   exposeRoute: true,
   swagger: {
     info: {
       title: 'User API',
-      description: 'Building a blazing fast REST API with Node.js, MongoDB, Fastify and Swagger',
+      description: '校园论坛接口文档',
       version: '1.0.0'
     },
     externalDocs: {

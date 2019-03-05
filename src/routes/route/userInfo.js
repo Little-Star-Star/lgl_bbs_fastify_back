@@ -22,4 +22,6 @@ module.exports = [
 		handler:ctrl_userInfo.privateGetSelfInfo,
 		schema:doc_userInfo.schema_privateGetSelfInfo
 	}
+	// 返回静态html文件
+	
 ]
