@@ -11,7 +11,27 @@ const path = require('path')
 // Import Swagger Options
 const swagger = require('./config/swagger')
 
-// Register Swagger
+// Register Swagger&&添加通用schema到definitions中
+const Res200_copy = Object.assign({},require('./common/schema/res200')) 
+delete Res200_copy.description
+swagger.options.swagger.definitions ={
+  Account:require('./common/schema/account'),
+  Res200:Res200_copy
+}
+// account tags
+swagger.options.swagger.tags = [{
+  name:'account-view',
+  description:'  账号系统相关VIEW'
+},{
+  name:'private-account-view',
+  description:'  (需要授权)账号系统相关VIEW'
+},{
+  name:'account-rest',
+  description:'  账号系统相关API'
+},{
+  name:'private-account-rest',
+  description:'  (需要授权)账号系统相关API'
+}]
 swagger.options.routePrefix = 'account'
 fastify.register(require('fastify-swagger'), swagger.options)
 
@@ -58,9 +78,9 @@ const allRoutes = require('./routes')
 allRoutes.routes_account.forEach((route, index) => {
   fastify.route(route)
 })
-allRoutes.routes_userInfo.forEach((route, index) => {
-  fastify.route(route)
-})
+// allRoutes.routes_userInfo.forEach((route, index) => {
+//   fastify.route(route)
+// })
 // Run the server!
 const start = async () => {
   try {
