@@ -14,6 +14,7 @@ exports.html_login = async (req, reply) => {
 			.code(200)
 			.header('Content-Type', 'text/html;charset="utf-8"')
 			.sendFile('login.html')
+		console.log(reply.sent)
 	} catch (error) {
 		throw boom.boomify(error)
 	}
