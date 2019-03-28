@@ -16,7 +16,7 @@ exports.options = {
     //   url:'https://github.com/Little-Star-Star',
     //   email:'2319513900@qq.com'
     // },
-    host: '0.0.0.0:3000',
+    host: 'localhost:3000',
     schemes: ['http'],
     consumes: ['application/json;charset=utf-8'],
     produces: ['application/json;charset=utf-8']
