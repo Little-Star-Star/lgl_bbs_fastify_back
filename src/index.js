@@ -43,29 +43,21 @@ fastify.use(require('cors')()) //允许跨域
 
 
 // Connect to DB-light:用户，只有操作school_bbs数据库的权限
-mongoose.connect('mongodb://light:834159672@localhost:27017/school_bbs',{ useNewUrlParser: true })
+mongoose.connect('mongodb://localhost:27017/school_bbs',{ useNewUrlParser: true })
   .then(() => {
     console.log('MongoDB connected...')
   })
   .catch(err => console.log(err))
 
 
-// 使用model并保存到数据库
-// let TestModel = mongoose.model('TestModel',new mongoose.Schema({test:'string'}),'helele')
-// let testmodel = new TestModel({test:'hello model'})
-// testmodel.save((err)=>{
-//   if(err)throw err
-//   console.log('save success')
-// })
+// mock user 信息
 
-// // mock user 信息
-
-// require('./models/userInfo').remove((err,product)=>{
-//   if(err)throw err
-//   console.log('delete userinfos success')
-//   console.log(product)
-// })
-// require('./mock/userInfo')()
+require('./models/userInfo').remove((err,product)=>{
+  if(err)throw err
+  console.log('delete userinfos success')
+  console.log(product)
+})
+require('./mock/userInfo')()
 
 
 
@@ -78,9 +70,7 @@ const allRoutes = require('./routes')
 allRoutes.routes_account.forEach((route, index) => {
   fastify.route(route)
 })
-// allRoutes.routes_userInfo.forEach((route, index) => {
-//   fastify.route(route)
-// })
+
 // Run the server!
 const start = async () => {
   try {
