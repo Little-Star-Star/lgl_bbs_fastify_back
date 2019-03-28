@@ -74,7 +74,7 @@ allRoutes.routes_account.forEach((route, index) => {
 // Run the server!
 const start = async () => {
   try {
-    await fastify.listen(3000)
+    await fastify.listen(3000,"0.0.0.0")
     fastify.swagger()
     fastify.log.info(`server listening on ${fastify.server.address().port}`)
   } catch (err) {
