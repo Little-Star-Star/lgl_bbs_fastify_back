@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-03-05 14:07:17 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-03-06 16:52:25
+ * @Last Modified time: 2019-04-01 23:22:08
  */
 
 //  用于处理登录，注册，找回密码，修改绑定...
@@ -12,20 +12,12 @@ const ctrl_account = require('../../controllers/account')
 const doc_account = require('../schema_doc/account')
 
 module.exports = [
-	/******* VIEW *******/
-	//返回登录，注册页面
+	/******* 根路由 *******/
 	{
-		method: 'GET',
-		url: '/account/login',
-		handler: ctrl_account.html_login,
-		schema: doc_account.schema_view_login
-	},
-	//返回邮箱验证码页面
-	{
-		method: 'GET',
-		url: '/account/emailCode',
-		handler: ctrl_account.html_emailCode,
-		schema: doc_account.schema_view_emailCode
+		method:'GET',
+		url:'/home',
+		handler:ctrl_account.html_index,
+		schema: doc_account.schema_view_index
 	},
 	/******* REST *******/
 	//手机验证码登录

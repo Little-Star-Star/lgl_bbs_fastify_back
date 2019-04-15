@@ -1,36 +1,23 @@
-const boom = require('boom')
-const model_account = require('../models/account')
+/*
+ * @Author: 李国亮 
+ * @Date: 2019-04-02 22:00:19 
+ * @Last Modified by: 李国亮
+ * @Last Modified time: 2019-04-03 02:10:05
+ */
+const {isPhone,decode} = require('../common/tool')
 
-/*************************VIEW***********************/
-/**
- * 获取登录注册页面
- * /account/login
- * @param {*} req
- * @param {*} reply
- */
-exports.html_login = async (req, reply) => {
+const boom = require('boom')
+const model_userInfo = require('../models/userInfo')
+
+
+/************************根index页面***********************/
+exports.html_index = async (req, reply) => {
 	try {
 		reply
 			.code(200)
 			.header('Content-Type', 'text/html;charset="utf-8"')
-			.sendFile('login.html')
+			.sendFile('index.html')
 		console.log(reply.sent)
-	} catch (error) {
-		throw boom.boomify(error)
-	}
-}
-/**
- * 获取登录注册页面
- * /account/emailCode
- * @param {*} req
- * @param {*} reply
- */
-exports.html_emailCode = async (req, reply) => {
-	try {
-		reply
-			.code(200)
-			.header('Content-Type', 'text/html;charset="utf-8"')
-			.sendFile('emailCode.html')
 	} catch (error) {
 		throw boom.boomify(error)
 	}
@@ -58,7 +45,51 @@ exports.post_loginWithCode = async (req, reply) => {
  */
 exports.post_loginWithPassword = async (req, reply) => {
 	try {
+		console.log(req.body);
+		// 服务器端留session，进行标识，发送cookie给客户端
+		console.log(req.session.sessionId.length);
+		console.log(req.cookies);
+		
+		let {
+			account,
+			password
+		} = req.body
+		let type = isPhone(account) ? 'mobile' : 'email'
+		const data = await model_userInfo.find({['account.'+type]:account})
+		let accountData = ''
+		data.forEach((d)=>{
+			if(decode(d.account.psw,d.account[type])===decode(password,account)){
+				accountData = d
+			}
+		})
 
+		if(accountData){
+			reply
+				.code(200)
+				// .header('Access-Control-Allow-Credentials', true)
+				// .header('Access-Control-Allow-Origin', 'http://localhost:8081')
+				.setCookie('userlogin',req.session.sessionId,{
+					path:'/',
+				})
+				.send({
+					code: 'success',
+					msg: 'hello'+accountData.nickname
+				})
+		}else if(!data.length){
+			reply
+				.code(201)
+				.send({
+					code: 'fail',
+					msg: '账号不存在'
+				})
+		}else{
+			reply
+			.code(202)
+			.send({
+				code:'fail',
+				msg:'密码错误'
+			})
+		}
 	} catch (error) {
 		throw boom.boomify(error)
 	}
@@ -123,7 +154,7 @@ exports.get_selfInfoByToken = async (req, reply) => {
  * @param {*} req
  * @param {*} reply
  */
-exports.html_private_setting = async (req,reply) => {
+exports.html_private_setting = async (req, reply) => {
 	try {
 		reply
 			.code(200)
@@ -139,7 +170,7 @@ exports.html_private_setting = async (req,reply) => {
  * @param {*} req
  * @param {*} reply
  */
-exports.html_private_userInfo = async (req,reply) => {
+exports.html_private_userInfo = async (req, reply) => {
 	try {
 		reply
 			.code(200)
@@ -156,9 +187,9 @@ exports.html_private_userInfo = async (req,reply) => {
  * @param {*} req
  * @param {*} reply
  */
-exports.post_private_bindAccount = async (req,reply) => {
+exports.post_private_bindAccount = async (req, reply) => {
 	try {
-		
+
 	} catch (error) {
 		throw boom.boomify(error)
 	}
@@ -169,9 +200,9 @@ exports.post_private_bindAccount = async (req,reply) => {
  * @param {*} req
  * @param {*} reply
  */
-exports.post_private_updateBindedAccount = async (req,reply) => {
+exports.post_private_updateBindedAccount = async (req, reply) => {
 	try {
-		
+
 	} catch (error) {
 		throw boom.boomify(error)
 	}
@@ -182,9 +213,9 @@ exports.post_private_updateBindedAccount = async (req,reply) => {
  * @param {*} req
  * @param {*} reply
  */
-exports.post_private_updatePassword = async (req,reply) => {
+exports.post_private_updatePassword = async (req, reply) => {
 	try {
-		
+
 	} catch (error) {
 		throw boom.boomify(error)
 	}
@@ -195,9 +226,9 @@ exports.post_private_updatePassword = async (req,reply) => {
  * @param {*} req
  * @param {*} reply
  */
-exports.post_private_updateUserInfo = async (req,reply) => {
+exports.post_private_updateUserInfo = async (req, reply) => {
 	try {
-		
+
 	} catch (error) {
 		throw boom.boomify(error)
 	}

@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-03-06 13:50:56 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-03-18 13:54:53
+ * @Last Modified time: 2019-04-02 00:24:15
  */
 
 //schema 用于定义req参数（get），body参数（post）,response(响应)
@@ -20,19 +20,6 @@ exports.schema_view_login = {
 		}
 	}
 }
-
-exports.schema_view_emailCode = {
-	summary: '获取邮箱验证码页面',
-	description: '获取邮箱验证码页面',
-	tags: ['account-view'],
-	response: {
-		200: {
-			description: 'OK',
-			type: 'string',
-		}
-	}
-}
-
 
 /*************************REST***********************/
 exports.schema_forgetPassword = {

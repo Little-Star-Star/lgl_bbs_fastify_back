@@ -1,3 +1,9 @@
+/*
+ * @Author: 李国亮 
+ * @Date: 2019-04-02 22:08:52 
+ * @Last Modified by:   李国亮 
+ * @Last Modified time: 2019-04-02 22:08:52 
+ */
 const mongoose = require('mongoose')
 
 const accountSchema = new mongoose.Schema({
