@@ -1,3 +1,5 @@
+
+
 const CryptoJS = require('crypto-js')
 const SHA256 = require('crypto-js/sha256')
 let id_add = 0
@@ -76,6 +78,48 @@ function isPhoneOrMail(account) {
 function isCaptcha(captcha) {
 	return /^[0-9]{6}$/.test(captcha)
 }
+
+/**
+ *  生成6位数字验证码
+ * @returns
+ */
+function sixNumber(){
+	let six = (Math.random()*10000000000).toFixed(0).slice(0,6)
+	return six.length === 6 ? six : sixNumber()
+}
+
+/**
+ * 发送邮箱验证码
+ *
+ * @param {*} mail 验证码接收邮箱
+ * @param {*} sixCode 六位验证码
+ */
+function generateCode(mail,sixCode) {
+	const nodemailer = require('nodemailer');
+	let transporter = nodemailer.createTransport({
+		service: 'qq', // 使用了内置传输发送邮件 查看支持列表：https://nodemailer.com/smtp/well-known/
+		port: 465, // SMTP 端口
+		secureConnection: true, // 使用了 SSL
+		auth: {
+			user: '3010972113@qq.com',
+			pass: 'fhqvmgtkjowydgah',
+		}
+	});
+	let mailOptions = {
+		from: '"LIJ1314" <3010972113@qq.com>', // sender address
+		to: mail, // list of receivers
+		subject: 'BBS验证码', // Subject line
+		html: `<div style="color:#333;font-weight:bold;font-size:24px;text-align:center;padding:100px 0;">${sixCode}
+			<div style="color:#f44;font-size:14px;text-align:center;padding:30px 0;">验证码有效时长：15分钟</div>
+		</div>` // html body
+	};
+
+	return transporter.sendMail(mailOptions, (error, info) => {
+		if (error) return 'error'
+		return info.messageId
+	});
+}
+
 module.exports = {
 	idAdd,
 	encode,
@@ -83,5 +127,7 @@ module.exports = {
 	isPhone,
 	isMail,
 	isPhoneOrMail,
-	isCaptcha
+	isCaptcha,
+	sixNumber,
+	generateCode,
 }

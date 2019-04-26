@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-03-06 13:50:56 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-04-02 00:24:15
+ * @Last Modified time: 2019-04-23 21:59:25
  */
 
 //schema 用于定义req参数（get），body参数（post）,response(响应)
@@ -50,7 +50,7 @@ exports.schema_forgetPassword = {
 		}
 	},
 	response: {
-		200: 'res200#'
+		200: 'res200withdata#'
 	}
 }
 
@@ -94,6 +94,26 @@ exports.schema_loginWithPassword = {
 			password:{
 				type:'string',
 				description:'密码'
+			},
+		}
+	},
+	response:{
+		200:'res200withdata#'
+	}
+}
+
+exports.schema_accountExisted = {
+	summary:'检查某一账号是否存在',
+	description:'检查某一账号是否存在',
+	tags:['account-rest'],
+	params:{
+		name:'accountExisted',
+		required:['account'],
+		type:'object',
+		properties:{
+			account:{
+				type:'string',
+				description:'邮箱（电话）'
 			}
 		}
 	},
@@ -126,26 +146,22 @@ exports.schema_register = {
 		}
 	},
 	response:{
-		200:'res200#'
+		200:'res200withdata#'
 	}
 }
 
-exports.schema_sendCode = {
-	summary:'发送验证码',
-	description:'发送验证码',
+exports.schema_sendMailCode = {
+	summary:'发送邮箱验证码',
+	description:'发送邮箱验证码',
 	tags:['account-rest'],
 	body:{
-		name:'sendCode',
+		name:'sendMailCode',
 		required:['account'],
 		properties:{
 			account:{
 				type:'string',
 				description:'账号（手机/邮箱）'
 			},
-			retry:{
-				type:'boolean',
-				description:'是否重试'
-			}
 		}
 	},
 	response:{

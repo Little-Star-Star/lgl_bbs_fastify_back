@@ -2,13 +2,16 @@
  * @Author: 李国亮 
  * @Date: 2019-04-02 22:00:19 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-04-03 02:10:05
+ * @Last Modified time: 2019-04-23 21:55:03
  */
-const {isPhone,decode} = require('../common/tool')
+const {isPhone,decode,sixNumber,generateCode} = require('../common/tool')
 
 const boom = require('boom')
 const model_userInfo = require('../models/userInfo')
 
+let mostNewSixNumberMailCode = '' //最新的6位数字邮箱验证码
+let mostNewSixNumberMailCodeTime = 0 //最新的6位数字邮箱验证码生成时间
+global.accountMailCodeMap = new Map()
 
 /************************根index页面***********************/
 exports.html_index = async (req, reply) => {
@@ -47,33 +50,32 @@ exports.post_loginWithPassword = async (req, reply) => {
 	try {
 		console.log(req.body);
 		// 服务器端留session，进行标识，发送cookie给客户端
-		console.log(req.session.sessionId.length);
-		console.log(req.cookies);
-		
 		let {
 			account,
 			password
 		} = req.body
 		let type = isPhone(account) ? 'mobile' : 'email'
 		const data = await model_userInfo.find({['account.'+type]:account})
-		let accountData = ''
+		let accountData = '' 
 		data.forEach((d)=>{
 			if(decode(d.account.psw,d.account[type])===decode(password,account)){
 				accountData = d
+				req.session.userId = accountData.id
 			}
 		})
-
 		if(accountData){
+			delete accountData.account.psw
 			reply
 				.code(200)
 				// .header('Access-Control-Allow-Credentials', true)
 				// .header('Access-Control-Allow-Origin', 'http://localhost:8081')
-				.setCookie('userlogin',req.session.sessionId,{
+				.setCookie('userlogin',req.session.encryptedSessionId,{
 					path:'/',
 				})
 				.send({
 					code: 'success',
-					msg: 'hello'+accountData.nickname
+					msg: '登录成功',
+					data:accountData,
 				})
 		}else if(!data.length){
 			reply
@@ -102,11 +104,110 @@ exports.post_loginWithPassword = async (req, reply) => {
  */
 exports.post_forgetPassword = async (req, reply) => {
 	try {
+		let {account,code,password} = req.body
+		// 没发验证码
+		if(!accountMailCodeMap.get(account)){
+			reply
+				.code(201)
+				.send({
+					code:'fail',
+					msg:'没有发送验证码'
+				})    
+			return
+		}
+		let mostNewCode = accountMailCodeMap.get(account).mostNewSixNumberMailCode
+		// 2分钟失效时间
+		let codeTimeOut = ((+new Date()) - accountMailCodeMap.get(account).mostNewSixNumberMailCodeTime) > 1000 * 60 * 15
+		if(code !== mostNewCode){
+			reply
+				.code(201)
+				.send({
+					code:'fail',
+					msg:'验证码错误'
+				})
+				return
+			
+		}
+		if(codeTimeOut){
+			reply
+				.code(202)
+				.send({
+					code:'fail',
+					msg:'验证码失效'
+				})
+				return
+		}
+		const exist = await model_userInfo.findOne({'account.email':account})
+		console.log(exist);
+		if(!exist.id){
+			reply
+				.code(203)
+				.send({
+					code:'fail',
+					msg:'该用户不存在'
+				})
+				return
+		}
+		// 修改密码
+		const r = await model_userInfo.updateOne(
+			{'account.email':account},{'account.psw':password}
+		)
+		console.log(r);
+		if(r.ok){
+			delete exist.account.psw
+			reply
+				.code(200)
+				.send({
+					code:'success',
+					msg:'找回密码成功',
+					data:exist
+				})
+				return
 
+		}else{
+			reply
+				.code(204)
+				.send({
+					code:'fail',
+					msg:'找回密码失败'
+				})
+				return
+		}
 	} catch (error) {
 		throw boom.boomify(error)
 	}
 }
+/**
+ * 检查账号是否已经注册
+ * /rest/account/existed/:account
+ * @param {*} req
+ * @param {*} reply
+ */
+exports.get_account_existed = async (req, reply) => {
+	try {
+		
+		console.log(req.params.account)
+		const exist = await model_userInfo.find({'account.email':req.params.account}).count()
+		console.log(exist);
+		if(exist){
+			reply
+				.code(203)
+				.send({
+					code:'fail',
+					msg:'该账号已经注册'
+				})
+		}
+		reply
+			.code(200)
+			.send({
+				code:'success',
+				msg:'该账号不存在'
+			})
+	} catch (error) {
+		throw boom.boomify(error)
+	}
+}
+
 /**
  * 注册
  * /account/rest/regester
@@ -115,20 +216,118 @@ exports.post_forgetPassword = async (req, reply) => {
  */
 exports.post_register = async (req, reply) => {
 	try {
+		let {account,code,password} = req.body
+		// 没发验证码
+		if(!accountMailCodeMap.get(account)){
+			reply
+				.code(201)
+				.send({
+					code:'fail',
+					msg:'没有发送验证码'
+				})    
+			return
+		}
+		let mostNewCode = accountMailCodeMap.get(account).mostNewSixNumberMailCode
+		// 2分钟失效时间
+		let codeTimeOut = ((+new Date()) - accountMailCodeMap.get(account).mostNewSixNumberMailCodeTime) > 1000 * 60 * 15
+		if(code !== mostNewCode){
+			reply
+				.code(201)
+				.send({
+					code:'fail',
+					msg:'验证码错误'
+				})
+				return
+			
+		}
+		if(codeTimeOut){
+			reply
+				.code(202)
+				.send({
+					code:'fail',
+					msg:'验证码失效'
+				})
+			return
+		}
+		const exist = await model_userInfo.find({'account.email':account}).count()
+		console.log(exist);
+		if(exist){
+			reply
+				.code(203)
+				.send({
+					code:'fail',
+					msg:'该用户已存在'
+				})
+				return
+		}
+		const r = await model_userInfo.insertMany({
+			name:'lij_'+sixNumber(),
+			specialty:'',
+			description:'他很懒，什么都没写...',
+			account:{
+				type:'user',
+				email:account,
+				psw:password
+			}
+		})
+		console.log(r);
+		if(r.length){
+			delete r[0].account.psw
+			reply
+				.code(200)
+				.send({
+					code:'success',
+					msg:'注册成功',
+					data:r[0]
+				})
+				return
 
+		}else{
+			reply
+				.code(204)
+				.send({
+					code:'fail',
+					msg:'注册失败'
+				})
+				return
+		}
 	} catch (error) {
 		throw boom.boomify(error)
 	}
 }
 /**
  * 发送验证码
- * /account/rest/sendCode
+ * /account/rest/sendMailCode
  * @param {*} req
  * @param {*} reply
  */
-exports.post_sendCode = async (req, reply) => {
+exports.post_sendMailCode = async (req, reply) => {
 	try {
-
+		let {account} = req.body
+		console.log(account);
+		mostNewSixNumberMailCodeTime = +new Date()
+		mostNewSixNumberMailCode = sixNumber()
+		accountMailCodeMap.set(account,{
+			mostNewSixNumberMailCode,
+			mostNewSixNumberMailCodeTime
+		})
+		const r = generateCode(account,mostNewSixNumberMailCode)
+		console.log(r)
+		if(r === 'error'){
+			reply
+				.code(201)
+				.send({
+					code:'fail',
+					msg:'发送失败'
+				})
+		}else{
+			reply
+			.code(200)
+			.send({
+				code:'success',
+				msg:'发送成功'
+			})
+		}
 	} catch (error) {
 		throw boom.boomify(error)
 	}

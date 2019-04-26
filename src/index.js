@@ -9,7 +9,8 @@ fastify.register(fastifySession, {
   secret: 'https://liguo-liang@lightlovexujia.top:1314',
   cookie: {
     maxAge:1000*60*60*24,
-  }
+  },
+  cookieName:'userlogin'
 });
 // Require external modules
 const mongoose = require('mongoose')
@@ -60,14 +61,8 @@ mongoose.connect('mongodb://localhost:27017/school_bbs', {
   })
   .catch(err => console.log(err))
 
-
 // mock user 信息
 
-// require('./models/userInfo').remove((err,product)=>{
-//   if(err)throw err
-//   console.log('delete userinfos success')
-//   console.log(product)
-// })
 // require('./mock/userInfo')()
 
 
@@ -75,6 +70,7 @@ mongoose.connect('mongodb://localhost:27017/school_bbs', {
 //添加通用schema
 fastify.addSchema(require('./common/schema/account.js'))
 fastify.addSchema(require('./common/schema/res200'))
+fastify.addSchema(require('./common/schema/res200withdata'))
 
 // 注册每个路由
 const allRoutes = require('./routes')

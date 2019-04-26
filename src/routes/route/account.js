@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-03-05 14:07:17 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-04-01 23:22:08
+ * @Last Modified time: 2019-04-23 15:55:57
  */
 
 //  用于处理登录，注册，找回密码，修改绑定...
@@ -34,6 +34,13 @@ module.exports = [
 		handler: ctrl_account.post_loginWithPassword,
 		schema: doc_account.schema_loginWithPassword
 	},
+	// 检查用户是否存在
+	{
+		method: 'GET',
+		url: '/rest/account/existed/:account',
+		handler: ctrl_account.get_account_existed,
+		schema: doc_account.schema_accountExisted
+	},
 	// 注册
 	{
 		method: 'POST',
@@ -41,12 +48,12 @@ module.exports = [
 		handler: ctrl_account.post_register,
 		schema: doc_account.schema_register
 	},
-	// 发送验证码
+	// 发送邮箱验证码
 	{
 		method: 'POST',
-		url: '/account/rest/sendCode',
-		handler: ctrl_account.post_sendCode,
-		schema: doc_account.schema_sendCode
+		url: '/account/rest/sendMailCode',
+		handler: ctrl_account.post_sendMailCode,
+		schema: doc_account.schema_sendMailCode
 	},
 	// 找回密码（忘记密码）
 	{

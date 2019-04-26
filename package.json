@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "fastify-mongodb": "^0.9.1",
-    "fastify-swagger": "^2.3.2"
+    "fastify-swagger": "^2.3.2",
+    "nodemailer": "^6.1.1"
   }
 }

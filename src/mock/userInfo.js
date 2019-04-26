@@ -2,49 +2,58 @@
  * @Author: 李国亮 
  * @Date: 2019-03-05 17:18:55 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-04-02 22:33:46
+ * @Last Modified time: 2019-04-23 13:54:10
  */
 // mock 用户信息，account嵌入其中
 const Mock = require('mockjs')
 
 const model_userInfo = require('../models/userInfo')
+const model_account = require('../models/account')
 const idAdd = require('../common/tool').idAdd
 const encode = require('../common/tool').encode
 const decode = require('../common/tool').decode
 
-function mock_one_userInfo(email){
+let first = true
+
+function mock_one_account() {
+	let type = 'user',
+		email
+	if (first) {
+		first = false
+		type = 'admin'
+		email = '2319513900@qq.com'
+	}
+	let account = Mock.mock({
+		type,
+		'mobile': /^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/,
+		'email': email || /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/,
+	})
+	account.psw = encode('123456', account.email)
+	return account
+}
+
+function mock_one_userInfo() {
 	new model_userInfo(Mock.mock({
-		'id':idAdd(),
-		'headSrc':/\/img\/avatar\/[a-zA-Z0-9_\-]{3,10}\.(png|jpg|jpeg)/,
-		'nickname':Mock.mock('@cword(3,10)'),
-		'sex|1':true,
-		'job|1':['学生','老师','电工','码农'],
-		'selfDescription':Mock.mock('@cparagraph(1, 3)'),
-		'high|150-200':50,
-		'weight|40-150':110,
-		'faceValue|1':[0,1,2,3,4],
-		'birthday':Mock.mock('@date("yyyy-MM-dd")'),
-		'city':Mock.mock('@city(true)'),
-		'hometown':Mock.mock('@city(true)'),
-		'TaInHeart':Mock.mock('@cparagraph(1, 3)'),
-		'beautifulImgs|9':[/\/img\/avatar\/[a-zA-Z0-9_\-]{3,10}\.(png|jpg|jpeg)/],
-		'account':{
-			'mobile': /^1(3|4|5|7|8)\d{9}$/,
-			'email': email || Mock.mock('@email()'),
-			'psw': encode('light','2319513900@qq.com'),
-			'type|1':['admin','user']
-		}
-	})).save((err)=>{
-		if(err) throw err
+		'avatar': 'lij_circle_logo.png',
+		'name': 'LIJ_BBS_' + idAdd(),
+		'specialty|1': ['软件工程', '计算机科学与技术', '信息安全', '心理学'],
+		'description': Mock.mock('@ctitle(50, 250)'),
+		'account': mock_one_account()
+	})).save((err) => {
+		if (err) throw err
 		console.log('mock user infos save')
 	})
 }
 
-function mock_userInfo(){
-	for(let i = 0; i < 10; i++) {
+async function mock_userInfo() {
+	// delete model
+	await model_userInfo.remove((err) => {
+		if (err) throw err
+		console.log('remove all userinfo datas');
+	})
+	for (let i = 0; i < 10; i++) {
 		mock_one_userInfo()
 	}
-	mock_one_userInfo("2319513900@qq.com")
 }
 
 module.exports = mock_userInfo
