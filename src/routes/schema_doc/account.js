@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-03-06 13:50:56 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-04-23 21:59:25
+ * @Last Modified time: 2019-04-28 20:49:21
  */
 
 //schema 用于定义req参数（get），body参数（post）,response(响应)
@@ -189,24 +189,6 @@ exports.schema_selfInfoByToken = {
 	}
 }
 
-/*************************PRIVATE-VIEW***********************/
-exports.schema_private_view_setting = {
-	summary:'账户管理页面',
-	description:'账户管理页面',
-	tags:['private-account-view'],
-	response:{
-		200:'res200#'
-	}
-}
-
-exports.schema_private_view_userInfo = {
-	summary:'个人资料页面',
-	description:'个人资料页面',
-	tags:['private-account-view'],
-	response:{
-		200:'res200#'
-	}
-}
 /*************************PRIVATE-REST***********************/
 exports.schema_private_bindAccount = {
 	summary:'绑定手机或邮箱',
@@ -260,7 +242,7 @@ exports.schema_private_updateBindedAccount = {
 		}
 	},
 	response:{
-		200:'res200#'
+		200:'res200withdata#'
 	}
 }
 
@@ -270,13 +252,9 @@ exports.schema_private_updatePassword = {
 	tags:['private-account-rest'],
 	body:{
 		name:'updatePassword',
-		required:['account','newPsw','oldPsw'],
+		required:['newPsw','oldPsw'],
 		type:'object',
 		properties:{
-			account:{
-				type:'string',
-				description:'需要绑定的新账号'
-			},
 			newPsw:{
 				type:'string',
 				description:'新密码'
@@ -298,13 +276,29 @@ exports.schema_private_updateUserInfo = {
 	tags:['private-account-rest'],
 	body:{
 		name:'updateUserInfo',
-		required:[''],
 		type:'object',
 		properties:{
-			
+			name:{
+				type:'string',
+				description:'用户别名',
+				maxLenth:15
+			},
+			description:{
+				type:'string',
+				description:'用户自我描述',
+				maxLenth:250
+			},
+			avatar:{
+				type:'string',
+				description:'头像路径',
+			},
+			specialty:{
+				type:'string',
+				description:'专业',
+			}
 		}
 	},
 	response:{
-		200:'res200#'
+		200:'res200withdata#'
 	}
 }

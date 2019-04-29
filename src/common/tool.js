@@ -1,5 +1,3 @@
-
-
 const CryptoJS = require('crypto-js')
 const SHA256 = require('crypto-js/sha256')
 let id_add = 0
@@ -83,8 +81,8 @@ function isCaptcha(captcha) {
  *  生成6位数字验证码
  * @returns
  */
-function sixNumber(){
-	let six = (Math.random()*10000000000).toFixed(0).slice(0,6)
+function sixNumber() {
+	let six = (Math.random() * 10000000000).toFixed(0).slice(0, 6)
 	return six.length === 6 ? six : sixNumber()
 }
 
@@ -94,7 +92,7 @@ function sixNumber(){
  * @param {*} mail 验证码接收邮箱
  * @param {*} sixCode 六位验证码
  */
-function generateCode(mail,sixCode) {
+function generateCode(mail, sixCode) {
 	const nodemailer = require('nodemailer');
 	let transporter = nodemailer.createTransport({
 		service: 'qq', // 使用了内置传输发送邮件 查看支持列表：https://nodemailer.com/smtp/well-known/
@@ -119,6 +117,19 @@ function generateCode(mail,sixCode) {
 		return info.messageId
 	});
 }
+/**
+ * 生成uuid "49e802d8-d74b-4cc1-ea38-2e19546c7929"
+ * @returns
+ */
+function generateUUID() {
+	var d = new Date().getTime();
+	var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+		var r = (d + Math.random() * 16) % 16 | 0;
+		d = Math.floor(d / 16);
+		return (c == 'x' ? r : (r & 0x7 | 0x8)).toString(16);
+	});
+	return uuid;
+};
 
 module.exports = {
 	idAdd,
@@ -130,4 +141,5 @@ module.exports = {
 	isCaptcha,
 	sixNumber,
 	generateCode,
+	generateUUID
 }

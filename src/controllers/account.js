@@ -2,9 +2,9 @@
  * @Author: 李国亮 
  * @Date: 2019-04-02 22:00:19 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-04-23 21:55:03
+ * @Last Modified time: 2019-04-28 22:03:31
  */
-const {isPhone,decode,sixNumber,generateCode} = require('../common/tool')
+const {isPhone,encode,decode,sixNumber,generateCode} = require('../common/tool')
 
 const boom = require('boom')
 const model_userInfo = require('../models/userInfo')
@@ -64,6 +64,7 @@ exports.post_loginWithPassword = async (req, reply) => {
 			}
 		})
 		if(accountData){
+			req.sessionStore.set(req.session.sessionId,req.session,()=>{return})
 			delete accountData.account.psw
 			reply
 				.code(200)
@@ -346,39 +347,6 @@ exports.get_selfInfoByToken = async (req, reply) => {
 	}
 }
 
-/*************************PRIVATE-VIEW***********************/
-/**
- * 获取安全设置页面
- * /account/private/setting
- * @param {*} req
- * @param {*} reply
- */
-exports.html_private_setting = async (req, reply) => {
-	try {
-		reply
-			.code(200)
-			.header('Content-Type', 'text/html;charset="utf-8"')
-			.sendFile('setting.html')
-	} catch (error) {
-		throw boom.boomify(error)
-	}
-}
-/**
- * 获取个人资料设置页面
- * /account/private/userInfo
- * @param {*} req
- * @param {*} reply
- */
-exports.html_private_userInfo = async (req, reply) => {
-	try {
-		reply
-			.code(200)
-			.header('Content-Type', 'text/html;charset="utf-8"')
-			.sendFile('userInfo.html')
-	} catch (error) {
-		throw boom.boomify(error)
-	}
-}
 /*************************PRIVATE-REST***********************/
 /**
  * 绑定手机号或邮箱
@@ -400,8 +368,53 @@ exports.post_private_bindAccount = async (req, reply) => {
  * @param {*} reply
  */
 exports.post_private_updateBindedAccount = async (req, reply) => {
+	// 1:修改加密的账号密码,先用老账号解码,在使用新账号加码
+	// 2:更新邮箱
+	const userId = req.session ? req.session.userId : ''
 	try {
-
+		if(!req.userLogin||!userId){
+			reply.code(201).send({
+				code:'fail',
+				msg:'用户未登录或登录失效'			
+			})
+		}else{
+			let {newAccount,newCode,oldAccount,oldCode} = req.body
+			let mostNewNewAccountCode = accountMailCodeMap.get(newAccount)
+			let mostNewOldAccountCode = accountMailCodeMap.get(oldAccount)
+			if(((+new Date()) - mostNewNewAccountCode.mostNewSixNumberMailCodeTime) > 1000 * 60 * 15
+				||((+new Date()) - mostNewOldAccountCode.mostNewSixNumberMailCodeTime) > 1000 * 60 * 15
+			){
+				reply.code(201).send({
+					code:'fail',
+					msg:'验证码失效'
+				})
+				return
+			}
+			if(newCode != mostNewNewAccountCode.mostNewSixNumberMailCode 
+				|| oldCode != mostNewOldAccountCode.mostNewSixNumberMailCode
+			){
+				reply.code(201).send({
+					code:'fail',
+					msg:'验证码不正确'
+				})
+				return
+			}
+			const curUser = await model_userInfo.findById(userId)
+			console.log(curUser)
+			let newPsw =encode(decode(curUser.account.psw,oldAccount),newAccount)
+			const updatedUser = await model_userInfo.findByIdAndUpdate(userId,{$set:{'account.psw':newPsw,'account.email':newAccount}})
+			if(updatedUser.account){
+				req.sessionStore.set(req.session.sessionId,req.session,()=>{return})
+				delete updatedUser.account.psw
+				reply.code(200).setCookie('userlogin',req.session.encryptedSessionId,{
+					path:'/',
+				}).send({
+					code:'success',
+					msg:'修改邮箱成功',	
+					data:updatedUser		
+				})
+			}
+		}
 	} catch (error) {
 		throw boom.boomify(error)
 	}
@@ -413,8 +426,34 @@ exports.post_private_updateBindedAccount = async (req, reply) => {
  * @param {*} reply
  */
 exports.post_private_updatePassword = async (req, reply) => {
+	const userId = req.session ? req.session.userId : ''
 	try {
-
+		if(!req.userLogin||!userId){
+			reply.code(201).send({
+				code:'fail',
+				msg:'用户未登录或登录失效'			
+			})
+		}else{
+			let {newPsw,oldPsw} = req.body
+			const curUser = await model_userInfo.findById(userId)
+			console.log(curUser)
+			// 旧密码不正确
+			if(decode(curUser.account.psw,curUser.account.email) !== decode(oldPsw,curUser.account.email)){
+				reply.code(201).send({
+					code:'fail',
+					msg:'密码错误'
+				})
+			}else{
+				const updatedUser = await model_userInfo.findByIdAndUpdate(userId,{$set:{'account.psw':newPsw}})
+				if(updatedUser.account){
+					delete curUser.account.psw
+					reply.code(200).send({
+						code:'success',
+						msg:'密码修改成功',			
+					})
+				}
+			}
+		}
 	} catch (error) {
 		throw boom.boomify(error)
 	}
@@ -426,8 +465,29 @@ exports.post_private_updatePassword = async (req, reply) => {
  * @param {*} reply
  */
 exports.post_private_updateUserInfo = async (req, reply) => {
+	const userId = req.session ? req.session.userId : ''
 	try {
-
+		if(!req.userLogin||!userId){
+			reply.code(201).send({
+				code:'fail',
+				msg:'用户未登录或登录失效'			
+			})
+		}else{
+			const curUser = await model_userInfo.findByIdAndUpdate(userId,req.body)
+			console.log(curUser)
+			if(curUser.account){
+				delete curUser.account.psw
+				reply.code(200).send({
+					code:'success',
+					msg:'用户个人信息修改成功',			
+					data:curUser
+				})
+			}
+		}
+		reply.code(401).send({
+			code:'fail',
+			msg:'请求失败'			
+		})
 	} catch (error) {
 		throw boom.boomify(error)
 	}

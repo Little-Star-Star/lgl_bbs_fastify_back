@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-03-05 14:07:17 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-04-23 15:55:57
+ * @Last Modified time: 2019-04-28 21:47:50
  */
 
 //  用于处理登录，注册，找回密码，修改绑定...
@@ -68,21 +68,6 @@ module.exports = [
 		url: '/account/rest/selfInfoByToken',
 		handler: ctrl_account.get_selfInfoByToken,
 		schema: doc_account.schema_selfInfoByToken
-	},
-	/******* PRIVATE-VIEW *******/
-	// 获取密码修改，账号绑定页面
-	{
-		method: 'GET',
-		url: '/account/private/setting',
-		handler: ctrl_account.html_private_setting,
-		schema: doc_account.schema_private_view_setting
-	},
-	// 获取个人资料页面
-	{
-		method: 'GET',
-		url: '/account/private/userInfo',
-		handler: ctrl_account.html_private_userInfo,
-		schema: doc_account.schema_private_view_userInfo
 	},
 	/******* PRIVATE-REST *******/
 	// 绑定手机号||邮箱

@@ -2,6 +2,13 @@
 const fastify = require('fastify')({
   logger: true,
 })
+
+const path = require('path')
+
+fastify.register(require('fastify-multipart'))
+require('./controllers/fileManage').post_upload_img(fastify)
+
+
 const fastifySession = require('fastify-session');
 const fastifyCookie = require('fastify-cookie');
 fastify.register(fastifyCookie);
@@ -12,9 +19,23 @@ fastify.register(fastifySession, {
   },
   cookieName:'userlogin'
 });
+// 添加一个userLogin
+fastify.decorateRequest('userLogin', false)
+// 对请求进行处理之前,先判断用户是否已经登录
+fastify.addHook('preHandler', (request, reply, next) => {
+  if(request.cookies.userlogin&&request.session.sessionId){
+    request.sessionStore.get(request.session.sessionId,(a,session)=>{
+      if(session){
+        request.userLogin = session.encryptedSessionId === request.session.encryptedSessionId
+      }else{
+        request.userLogin = false
+      }
+    })
+  }
+  next()
+})
 // Require external modules
 const mongoose = require('mongoose')
-const path = require('path')
 
 
 // Import Swagger Options
@@ -77,6 +98,8 @@ const allRoutes = require('./routes')
 allRoutes.routes_account.forEach((route, index) => {
   fastify.route(route)
 })
+
+
 
 // Run the server!
 const start = async () => {
