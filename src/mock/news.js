@@ -2,16 +2,22 @@
  * @Author: 李国亮 
  * @Date: 2019-03-05 17:18:55 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-05-02 15:21:18
+ * @Last Modified time: 2019-05-05 00:26:42
  */
 // mock 用户信息，account嵌入其中
 const mongoose = require('mongoose')
 const Mock = require('mockjs')
 
 const model_news = require('../models/news')
+const model_userinfo = require('../models/userInfo')
 const model_newsComment = require('../models/newsComment')
 // 5cbeac4c7a5ae938e13f8c92 2319513900@qq.com ID
-let allUsersId = ['5cbeac4c7a5ae938e13f8c92','5cbeac4c7a5ae938e13f8c93','5cbeac4c7a5ae938e13f8c94','5cbeac4c7a5ae938e13f8c95','5cbeac4c7a5ae938e13f8c96','5cbeac4c7a5ae938e13f8c97','5cbeac4c7a5ae938e13f8c98','5cbeac4c7a5ae938e13f8c99','5cbeac4c7a5ae938e13f8c9a','5cbeac4c7a5ae938e13f8c9b','5cbf19afc7f08f5a2dc82fc1']
+var allUsersId = []
+async function getUsers(){
+	const r = await model_userinfo.find().select({id:1}).lean()
+	allUsersId = r.map((d)=>{return d._id.toString()})
+	console.log(allUsersId)
+}
 function mock_more_comment(newsId) {
 	for(let i = 0; i < Math.floor(Math.random()*20); i++){
 		new model_newsComment(Mock.mock({
@@ -45,12 +51,12 @@ function mock_one_news() {
 			'like': Mock.mock('@integer(1, 100)'),
 			'collect':Mock.mock('@integer(1, 100)'),
 		},
-		'userId|1':["5cbeac4c7a5ae938e13f8c92","5cbf19afc7f08f5a2dc82fc1"],
+		'userId|1':[allUsersId[0],allUsersId[1]],
 	})
 	let tmp = new Set()
 	for(let i = 0; i < Math.floor(Math.random()*10); i++){
 		let cur = ['游戏','电影','旅游','恋爱','校园','摄影','古装','吉他','其他','图书馆'][Math.floor(Math.random()*8) + 2]
-		console.log(cur,tmp)
+		// console.log(cur,tmp)
 		if(tmp.has(cur)){
 			i--
 			continue
@@ -68,6 +74,7 @@ function mock_one_news() {
 }
 
 async function mock_20_news() {
+	await getUsers()
 	// delete model
 	await model_news.remove({},(err) => {
 		if (err) throw err

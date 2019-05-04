@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-03-05 17:18:55 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-04-29 22:25:15
+ * @Last Modified time: 2019-05-05 00:26:43
  */
 // mock 用户信息，account嵌入其中
 const Mock = require('mockjs')
@@ -13,15 +13,19 @@ const idAdd = require('../common/tool').idAdd
 const encode = require('../common/tool').encode
 const decode = require('../common/tool').decode
 
-let first = true
+let first = 1
 
 function mock_one_account() {
 	let type = 'user',
 		email
-	if (first) {
-		first = false
+	if (first === 1) {
+		first ++
 		type = 'admin'
 		email = '2319513900@qq.com'
+	}else if(first === 2){
+		first ++
+		type = 'user'
+		email = '3010972113@qq.com'
 	}
 	let account = Mock.mock({
 		type,

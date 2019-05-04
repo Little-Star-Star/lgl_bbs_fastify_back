@@ -2,17 +2,22 @@
  * @Author: 李国亮 
  * @Date: 2019-03-05 17:18:55 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-05-03 17:28:47
+ * @Last Modified time: 2019-05-05 00:27:35
  */
 // mock 用户信息，account嵌入其中
 const mongoose = require('mongoose')
 const Mock = require('mockjs')
 
 const model_secondHand = require('../models/secondHand')
+const model_userinfo = require('../models/userInfo')
 const model_secondHandComment = require('../models/secondHandComment')
 // 5cbeac4c7a5ae938e13f8c92 2319513900@qq.com ID
-let allUsersId = ['5cbeac4c7a5ae938e13f8c92', '5cbeac4c7a5ae938e13f8c93', '5cbeac4c7a5ae938e13f8c94', '5cbeac4c7a5ae938e13f8c95', '5cbeac4c7a5ae938e13f8c96', '5cbeac4c7a5ae938e13f8c97', '5cbeac4c7a5ae938e13f8c98', '5cbeac4c7a5ae938e13f8c99', '5cbeac4c7a5ae938e13f8c9a', '5cbeac4c7a5ae938e13f8c9b', '5cbf19afc7f08f5a2dc82fc1']
-
+var allUsersId = []
+async function getUsers(){
+	const r = await model_userinfo.find().select({id:1}).lean()
+	allUsersId = r.map((d)=>{return d._id.toString()})
+	console.log(allUsersId)
+}
 function mock_more_comment(secondHandId) {
 	let len = Math.floor(Math.random() * 20);
 	for (let i = 0; i < len; i++) {
@@ -70,7 +75,7 @@ function mock_one_secondHand() {
 		'dealType|1':['线上','线下'],
 		'link':/^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/,
 		'description': Mock.mock('@cparagraph(30, 100)'),
-		'user|1': ["5cbeac4c7a5ae938e13f8c92", "5cbf19afc7f08f5a2dc82fc1"],
+		'user|1':[allUsersId[0],allUsersId[1]],
 	})).save((err, r) => {
 		if (err) throw err
 		console.log('mock user second save', r.id)
@@ -81,6 +86,8 @@ function mock_one_secondHand() {
 }
 
 async function mock_more_secondHand(number) {
+	await getUsers()
+
 	// delete model
 	await model_secondHand.remove({}, (err) => {
 		if (err) throw err
