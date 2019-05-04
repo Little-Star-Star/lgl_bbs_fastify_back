@@ -84,11 +84,11 @@ mongoose.connect('mongodb://localhost:27017/school_bbs', {
 
 // mock user 信息
 
-// require('./mock/userInfo')()
+require('./mock/userInfo')()
 
-// require('./mock/news')()
+require('./mock/news')()
 
-// require('./mock/secondHand')(133)
+require('./mock/secondHand')(133)
 
 
 //添加通用schema
