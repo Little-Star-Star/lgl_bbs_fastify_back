@@ -7,6 +7,7 @@ const path = require('path')
 
 fastify.register(require('fastify-multipart'))
 require('./controllers/fileManage').post_upload_img(fastify)
+require('./controllers/fileManage').post_upload_release_img(fastify)
 
 
 const fastifySession = require('fastify-session');
@@ -36,7 +37,6 @@ fastify.addHook('preHandler', (request, reply, next) => {
 })
 // Require external modules
 const mongoose = require('mongoose')
-
 
 // Import Swagger Options
 const swagger = require('./config/swagger')
@@ -86,16 +86,33 @@ mongoose.connect('mongodb://localhost:27017/school_bbs', {
 
 // require('./mock/userInfo')()
 
+// require('./mock/news')()
+
+// require('./mock/secondHand')(133)
 
 
 //添加通用schema
 fastify.addSchema(require('./common/schema/account.js'))
 fastify.addSchema(require('./common/schema/res200'))
 fastify.addSchema(require('./common/schema/res200withdata'))
+fastify.addSchema(require('./common/schema/res200withdataandpage'))
 
 // 注册每个路由
 const allRoutes = require('./routes')
+// 账号路由
 allRoutes.routes_account.forEach((route, index) => {
+  fastify.route(route)
+})
+// 资讯路由
+allRoutes.routes_news.forEach((route, index) => {
+  fastify.route(route)
+})
+// 评论路由
+allRoutes.routes_comment.forEach((route, index) => {
+  fastify.route(route)
+})
+// 二手物品路由
+allRoutes.routes_secondHand.forEach((route, index) => {
   fastify.route(route)
 })
 

@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-04-02 22:00:19 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-04-28 22:03:31
+ * @Last Modified time: 2019-05-01 09:35:03
  */
 const {isPhone,encode,decode,sixNumber,generateCode} = require('../common/tool')
 
