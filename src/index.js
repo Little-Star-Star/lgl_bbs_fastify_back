@@ -116,6 +116,22 @@ allRoutes.routes_secondHand.forEach((route, index) => {
   fastify.route(route)
 })
 
+fastify.setNotFoundHandler({
+  preValidation: (req, reply, next) => {
+    // 你的代码
+    next()
+  } ,
+  preHandler: (req, reply, next) => {
+    // 你的代码
+    next()
+  }  
+}, function (request, reply) {
+    // 设置了 preValidation 与 preHandler 钩子的默认 not found 处理函数
+    reply
+			.code(200)
+			.header('Content-Type', 'text/html;charset="utf-8"')
+			.sendFile('index.html')
+})
 
 
 // Run the server!

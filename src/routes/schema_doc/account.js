@@ -2,14 +2,14 @@
  * @Author: 李国亮 
  * @Date: 2019-03-06 13:50:56 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-04-30 23:48:48
+ * @Last Modified time: 2019-05-05 00:56:59
  */
 
 //schema 用于定义req参数（get），body参数（post）,response(响应)
 //swagger和fastify共同使用
 
 /*************************VIEW***********************/
-exports.schema_view_login = {
+exports.schema_view_index = {
 	summary: '获取登录页面',
 	description: '获取登录页面',
 	tags: ['account-view'],

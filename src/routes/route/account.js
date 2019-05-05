@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-03-05 14:07:17 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-04-28 21:47:50
+ * @Last Modified time: 2019-05-05 01:15:23
  */
 
 //  用于处理登录，注册，找回密码，修改绑定...
@@ -15,7 +15,7 @@ module.exports = [
 	/******* 根路由 *******/
 	{
 		method:'GET',
-		url:'/home',
+		url:'/',
 		handler:ctrl_account.html_index,
 		schema: doc_account.schema_view_index
 	},
