@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-04-27 16:19:08 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-05-03 15:38:34
+ * @Last Modified time: 2019-05-05 08:57:55
  */
 // 文件上传下载
 const fs = require('fs')
@@ -73,7 +73,7 @@ exports.post_upload_release_img = (fastify) => {
 				code: 'success',
 				msg: '图片上传成功',
 				// :'avatar/' + avatarUrl
-				data: ['http://0.0.0.0:3000/img/release/'+lgl_filename + '.' + ext],
+				data: ['/img/release/'+lgl_filename + '.' + ext],
 				errno: 0
 			})
 		})
