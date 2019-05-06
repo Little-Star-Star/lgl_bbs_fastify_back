@@ -82,13 +82,16 @@ mongoose.connect('mongodb://localhost:27017/school_bbs', {
   })
   .catch(err => console.log(err))
 
-// mock user 信息
-
 // require('./mock/userInfo')()
 
-// require('./mock/news')()
+// require('./mock/news')(100)
+
+// require('./mock/follow')(6)
+// require('./mock/like')(10)
 
 // require('./mock/secondHand')(133)
+
+// require('./mock/formatCommentCount')()
 
 
 //添加通用schema

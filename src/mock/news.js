@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-03-05 17:18:55 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-05-05 00:26:42
+ * @Last Modified time: 2019-05-05 17:17:10
  */
 // mock 用户信息，account嵌入其中
 const mongoose = require('mongoose')
@@ -51,6 +51,7 @@ function mock_one_news() {
 			'like': Mock.mock('@integer(1, 100)'),
 			'collect':Mock.mock('@integer(1, 100)'),
 		},
+		'createTime':new Date(+new Date() - Math.floor(Math.random()*1000*60*60*24*90)).toISOString(),
 		'userId|1':[allUsersId[0],allUsersId[1]],
 	})
 	let tmp = new Set()
@@ -73,7 +74,7 @@ function mock_one_news() {
 	// 将这一条News的Id,嵌入所有评
 }
 
-async function mock_20_news() {
+async function mock_more_news(number) {
 	await getUsers()
 	// delete model
 	await model_news.remove({},(err) => {
@@ -84,9 +85,9 @@ async function mock_20_news() {
 		if (err) throw err
 		console.log('remove all comment datas');
 	})
-	for (let i = 0; i < 20; i++) {
+	for (let i = 0; i < number; i++) {
 		mock_one_news()
 	}
 }
 
-module.exports = mock_20_news
+module.exports = mock_more_news
