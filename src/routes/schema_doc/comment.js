@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-03-06 13:50:56 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-05-06 23:10:17
+ * @Last Modified time: 2019-05-19 01:19:16
  */
 
 /*************************REST***********************/
@@ -31,3 +31,11 @@ exports.schema_replyNewsComment = {
 	}
 }
 
+exports.schema_secondHandCommentList = {
+	summary: '获取二手物品留言列表',
+	description: '获取二手物品留言列表',
+	tags: ['comment-rest'],
+	response: {
+		200: 'res200withdata#'
+	}
+}

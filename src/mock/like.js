@@ -47,14 +47,14 @@ function mock_one_like() {
 				return new Date(+new Date() - Math.floor(Math.random()*1000*60*60*24*90)).toISOString()
 			},
 		}],
-		"report": [{
+		"report": {
 			'text': function () {
 				return Mock.mock('@cword(1, 50)')
 			},
 			'time': function () {
 				return new Date(+new Date() - Math.floor(Math.random()*1000*60*60*24*90)).toISOString()
 			},
-		}]
+		}
 	})).save((err) => {
 		if (err) throw err
 		console.log('mock user like save')

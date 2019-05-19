@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-03-06 13:50:56 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-05-01 21:26:28
+ * @Last Modified time: 2019-05-19 01:17:20
  */
 
 /*************************REST***********************/
@@ -22,4 +22,14 @@ exports.schema_getSecondHandDetail = {
 		200: 'res200withdata#'
 	}
 }
+exports.schema_collect = {
+	summary: '收藏/取消收藏',
+	description: '收藏/取消收藏',
+	tags: ['second-rest'],
+	response: {
+		200: 'res200withdata#'
+	}
+}
+
+
 

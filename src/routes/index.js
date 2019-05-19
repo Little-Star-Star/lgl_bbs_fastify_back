@@ -11,15 +11,18 @@ const r_account = require('./route/account')
 const r_news = require('./route/news')
 const r_comment = require('./route/comment')
 const r_secondHand = require('./route/secondHand')
+const r_release= require('./route/release')
 const routes_account = [...r_account]
 const routes_userInfo = [...r_userInfo]
 const routes_news = [...r_news]
 const routes_comment = [...r_comment]
 const routes_secondHand = [...r_secondHand]
+const routes_release = [...r_release]
 module.exports = {
 	routes_account,
 	routes_userInfo,
 	routes_news,
 	routes_comment,
-	routes_secondHand
+	routes_secondHand,
+	routes_release
 }

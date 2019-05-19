@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-03-05 14:07:17 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-05-06 23:10:26
+ * @Last Modified time: 2019-05-19 21:56:45
  */
 
 //  用于处理评论相关操作
@@ -31,5 +31,19 @@ module.exports = [
 		url: '/news/replyComment',
 		handler: ctrl_comment.post_replyComment,
 		schema: doc_comment.schema_replyNewsComment
+	},
+	//获取二手物品留言
+	{
+		method: 'GET',
+		url: '/secondHand/comment/list/:secondHandId',
+		handler: ctrl_comment.get_secondHandCommentList,
+		schema: doc_comment.schema_secondHandCommentList
+	},
+	//发布二手物品留言
+	{
+		method: 'POST',
+		url: '/secondHand/releaseComment',
+		handler: ctrl_comment.post_secondHandReleaseComment,
+		schema: doc_comment.schema_releaseNewsComment
 	},
 ]

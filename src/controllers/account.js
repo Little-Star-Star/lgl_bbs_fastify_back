@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-04-02 22:00:19 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-05-05 08:01:45
+ * @Last Modified time: 2019-05-20 01:40:31
  */
 const {isPhone,encode,decode,sixNumber,generateCode} = require('../common/tool')
 
@@ -473,7 +473,7 @@ exports.post_private_updateUserInfo = async (req, reply) => {
 				msg:'用户未登录或登录失效'			
 			})
 		}else{
-			const curUser = await model_userInfo.findByIdAndUpdate(userId,req.body)
+			const curUser = await model_userInfo.findByIdAndUpdate(userId,req.body,{new:true})
 			console.log(curUser)
 			if(curUser.account){
 				delete curUser.account.psw

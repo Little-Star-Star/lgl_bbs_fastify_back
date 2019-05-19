@@ -4,6 +4,7 @@ const secondHandSchema = new mongoose.Schema({
 	covers:[String],
 	title:{type:String},
 	price:{type:Number},  //转手价
+	type:{type:String}, //商品类型
 	originPrice:{type:Number},
 	statics:{
 		view:{type:Number,default:0},

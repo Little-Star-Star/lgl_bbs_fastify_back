@@ -63,7 +63,7 @@ swagger.options.swagger.tags = [{
   description: '  (需要授权)账号系统相关API'
 }]
 swagger.options.routePrefix = 'account'
-fastify.register(require('fastify-swagger'), swagger.options)
+// fastify.register(require('fastify-swagger'), swagger.options)
 
 fastify.register(require('fastify-static'), {
   root: path.join(__dirname, '../assets'),
@@ -87,12 +87,14 @@ mongoose.connect('mongodb://localhost:27017/school_bbs', {
 // require('./mock/news')(100)
 
 // require('./mock/follow')(6)
-// require('./mock/like')(10)
 
 // require('./mock/secondHand')(133)
 
 // require('./mock/formatCommentCount')()
 
+// require('./mock/like')(10)
+
+// require('./mock/likeSecondHand')(15)
 
 //添加通用schema
 fastify.addSchema(require('./common/schema/account.js'))
@@ -119,6 +121,11 @@ allRoutes.routes_secondHand.forEach((route, index) => {
   fastify.route(route)
 })
 
+// 个人发布路由
+allRoutes.routes_release.forEach((route, index) => {
+  fastify.route(route)
+})
+
 fastify.setNotFoundHandler({
   preValidation: (req, reply, next) => {
     // 你的代码
@@ -141,7 +148,7 @@ fastify.setNotFoundHandler({
 const start = async () => {
   try {
     await fastify.listen(3000, "0.0.0.0")
-    fastify.swagger()
+    // fastify.swagger()
     fastify.log.info(`server listening on ${fastify.server.address().port}`)
   } catch (err) {
     fastify.log.error(err)
