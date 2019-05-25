@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-04-30 23:16:24 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-05-19 22:00:51
+ * @Last Modified time: 2019-05-24 20:04:42
  */
 const model_secondHand = require('../models/secondHand')
 const model_secondHandComment = require('../models/secondHandComment')
@@ -28,7 +28,7 @@ exports.post_secondHandList = async (req, reply) => {
             maxPrice,
             keyword = '',
         } = req.body
-        if(!type.length) type = ['电子产品', '美妆', '服饰', '图书资料', '生活用品', '户外运动','玩具乐器','租房','其他']
+        if (!type.length) type = ['电子产品', '美妆', '服饰', '图书资料', '生活用品', '户外运动', '玩具乐器', '租房', '其他']
         minPrice = minPrice < 0 ? 0 : minPrice
         maxPrice = maxPrice ? maxPrice : 100000000000
         const keywordReg = new RegExp(keyword, "i")
@@ -40,7 +40,9 @@ exports.post_secondHandList = async (req, reply) => {
             "title": {
                 $regex: keywordReg
             },
-            "type":{$in:type}
+            "type": {
+                $in: type
+            }
         }).countDocuments()
         let r = await model_secondHand.find({
                 "price": {
@@ -50,7 +52,9 @@ exports.post_secondHandList = async (req, reply) => {
                 "title": {
                     $regex: keywordReg
                 },
-                "type":{$in:type}
+                "type": {
+                    $in: type
+                }
             })
             .populate({
                 path: 'user',
@@ -66,12 +70,12 @@ exports.post_secondHandList = async (req, reply) => {
                 "title": 1,
                 "userId": 1,
                 "price": 1,
-                "type":1
+                "type": 1
             })
             .skip((pageIndex - 1) * pageSize)
             .limit(pageSize)
             .lean()
-        r = r.filter(d=>d.user)
+        r = r.filter(d => d.user)
         reply.code(200).send({
             code: 'success',
             msg: '',
@@ -114,6 +118,53 @@ exports.get_secondHandDetail = async (req, reply) => {
     }
 }
 
+/**
+ * 获取自己所有所有二手物品
+ * /private/secondhand/list
+ * @param {*} req 
+ * @param {*} reply
+ */
+exports.post_mySecondHandList = async (req, reply) => {
+    const userId = req.session ? req.session.userId : ''
+    let {
+        pageIndex,
+        pageSize
+    } = req.body
+    try {
+        if (!req.userLogin || !userId) {
+            reply.code(201).send({
+                code: 'fail',
+                msg: '您还未登录,请登录!'
+            })
+        } else {
+            const r = await model_secondHand.find({}).select({
+                covers:1,
+                title:1,
+                createTime:1,
+                _id:1
+            })
+            .sort({
+                createTime: -1
+            })
+            .skip((pageIndex-1) * pageSize)
+            .limit(pageSize)
+            .lean()
+            const total = await model_news.find({}).countDocuments()
+            reply.code(200).send({
+                code: 'success',
+                msg: '获取个人二手物品列表成功',
+                data: r,
+                page:{
+                    pageIndex,
+                    pageSize,
+                    total
+                }
+            })
+        }
+    } catch (error) {
+        throw boom.boomify(error)
+    }
+}
 /**
  * 收藏\取消收藏
  *
@@ -205,7 +256,7 @@ exports.get_likeSecondHand = async (req, reply) => {
             reply.code(201).send({
                 code: 'fail',
                 msg: '您还未登录,请登录!',
-                data:[]
+                data: []
             })
         } else {
             const r = await model_like.findOne({

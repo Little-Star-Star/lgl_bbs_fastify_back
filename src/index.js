@@ -126,6 +126,11 @@ allRoutes.routes_release.forEach((route, index) => {
   fastify.route(route)
 })
 
+// 校园活动路由
+allRoutes.routes_activity.forEach((route, index) => {
+  fastify.route(route)
+})
+
 fastify.setNotFoundHandler({
   preValidation: (req, reply, next) => {
     // 你的代码

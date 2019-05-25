@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-03-06 13:50:56 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-05-06 12:58:03
+ * @Last Modified time: 2019-05-24 16:18:20
  */
 
 /*************************REST***********************/
@@ -111,6 +111,14 @@ exports.schema_report = {
 	}
 }
 
+exports.schema_myNewsList = {
+	summary: "获取个人校园资讯列表",
+	description: "获取个人校园资讯列表",
+	tags: ['news-rest'],
+	response: {
+		200: 'res200withdataandpage#'
+	}
+}
 
 
 

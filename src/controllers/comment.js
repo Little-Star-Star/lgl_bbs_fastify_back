@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-04-30 23:16:24 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-05-19 22:29:05
+ * @Last Modified time: 2019-05-21 15:56:50
  */
 const model_news = require('../models/news')
 const model_newsComment = require('../models/newsComment')
@@ -206,7 +206,7 @@ exports.get_secondHandCommentList = async (req, reply) => {
         reply.code(200).send({
             code: 'success',
             msg: '获取所有二手物品留言成功',
-            data: r.comments
+            data: r?r.comments:null
         })
     } catch (error) {
         throw boom.boomify(error)

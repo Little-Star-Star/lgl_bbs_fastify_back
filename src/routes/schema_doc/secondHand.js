@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-03-06 13:50:56 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-05-19 01:17:20
+ * @Last Modified time: 2019-05-24 16:17:59
  */
 
 /*************************REST***********************/
@@ -28,6 +28,15 @@ exports.schema_collect = {
 	tags: ['second-rest'],
 	response: {
 		200: 'res200withdata#'
+	}
+}
+
+exports.schema_mySecondHandList = {
+	summary: "获取个人二手物品列表",
+	description: "获取个人二手物品列表",
+	tags: ['news-rest'],
+	response: {
+		200: 'res200withdataandpage#'
 	}
 }
 

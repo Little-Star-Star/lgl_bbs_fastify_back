@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-04-27 16:19:08 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-05-20 01:34:56
+ * @Last Modified time: 2019-05-21 16:05:21
  */
 // 文件上传下载
 const fs = require('fs')
@@ -33,7 +33,7 @@ exports.post_upload_img = (fastify) => {
 			console.log('upload completed', process.memoryUsage().rss)
 			reply.code(200).send({
 				code: 'success',
-				msg: '头像上传成功',
+				msg: type === 'avatar' ? '头像上传成功' : '图片上传成功',
 				// avatar:'avatar/' + avatarUrl
 			})
 		})

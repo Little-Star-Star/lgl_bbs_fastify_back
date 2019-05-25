@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-04-30 23:16:24 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-05-06 21:17:17
+ * @Last Modified time: 2019-05-24 20:10:20
  */
 const model_news = require('../models/news')
 const model_userInfo = require('../models/userInfo')
@@ -94,10 +94,16 @@ exports.post_searchNews = async (req, reply) => {
         } = req.body
         const keywordReg = new RegExp(keyword, 'i')
         const r = await model_news.find({
-            $or:[{
-                keyword:{$elemMatch:{$regex:keywordReg}}
-            },{
-                title:{$regex:keywordReg}
+            $or: [{
+                keyword: {
+                    $elemMatch: {
+                        $regex: keywordReg
+                    }
+                }
+            }, {
+                title: {
+                    $regex: keywordReg
+                }
             }]
         }).sort({
             "createTime": -1
@@ -132,21 +138,76 @@ exports.post_searchNews = async (req, reply) => {
  */
 exports.get_taNews = async (req, reply) => {
     try {
-        let {userId} = req.params
-        const r = await model_news.find({userId:userId}).select({title:1,_id:1}).lean()
-        if(r&&r.length){
+        let {
+            userId
+        } = req.params
+        const r = await model_news.find({
+            userId: userId
+        }).select({
+            title: 1,
+            _id: 1
+        }).lean()
+        if (r && r.length) {
             reply.code(200).send({
                 code: 'success',
                 msg: '获取该作者所有资讯成功',
                 data: r,
             })
-        }else{
+        } else {
             reply.code(200).send({
                 code: 'fail',
                 msg: '获取该作者所有资讯失败',
                 data: r,
             })
-        }      
+        }
+    } catch (error) {
+        throw boom.boomify(error)
+    }
+}
+/**
+ * 获取自己所有所有News
+ * /private/news/list
+ * @param {*} req 
+ * @param {*} reply
+ */
+exports.post_myNewsList = async (req, reply) => {
+    const userId = req.session ? req.session.userId : ''
+    let {
+        pageIndex,
+        pageSize
+    } = req.body
+    try {
+        if (!req.userLogin || !userId) {
+            reply.code(201).send({
+                code: 'fail',
+                msg: '您还未登录,请登录!'
+            })
+        } else {
+            const r = await model_news.find({
+                    "userId": userId
+                }).select({
+                    cover: 1,
+                    title: 1,
+                    createTime: 1,
+                    _id: 1
+                }).sort({
+                    createTime: -1
+                })
+                .skip((pageIndex - 1) * pageSize)
+                .limit(pageSize)
+                .lean()
+            const total = await model_news.find({}).countDocuments()
+            reply.code(200).send({
+                code: 'success',
+                msg: '获取个人校园资讯列表成功',
+                data: r,
+                page: {
+                    pageIndex,
+                    pageSize,
+                    total
+                }
+            })
+        }
     } catch (error) {
         throw boom.boomify(error)
     }
@@ -167,7 +228,10 @@ exports.post_hotTopic = async (req, reply) => {
             .sort({
                 "statics.comment": -1
             })
-            .select({'id':1,'title':1})
+            .select({
+                'id': 1,
+                'title': 1
+            })
             .skip((pageIndex - 1) * pageSize)
             .limit(pageSize)
             .lean()
@@ -535,7 +599,11 @@ exports.get_collect = async (req, reply) => {
  */
 exports.post_feedback = async (req, reply) => {
     const userId = req.session ? req.session.userId : ''
-    let {type,text,link} = req.body
+    let {
+        type,
+        text,
+        link
+    } = req.body
     try {
         if (!req.userLogin || !userId) {
             reply.code(201).send({
@@ -544,20 +612,20 @@ exports.post_feedback = async (req, reply) => {
             })
         } else {
             new model_feedback({
-                user:userId,
+                user: userId,
                 type,
                 text,
                 link
-            }).save((err,r)=>{
-                if(err){
+            }).save((err, r) => {
+                if (err) {
                     reply.code(200).send({
-                        code:'fail',
-                        msg:'反馈失败'
-                    })    
+                        code: 'fail',
+                        msg: '反馈失败'
+                    })
                 }
                 reply.code(200).send({
-                    code:'success',
-                    msg:'反馈成功'
+                    code: 'success',
+                    msg: '反馈成功'
                 })
             })
         }
@@ -574,7 +642,12 @@ exports.post_feedback = async (req, reply) => {
  */
 exports.post_report = async (req, reply) => {
     const userId = req.session ? req.session.userId : ''
-    let {reportedId,type,summary,description} = req.body
+    let {
+        reportedId,
+        type,
+        summary,
+        description
+    } = req.body
     try {
         if (!req.userLogin || !userId) {
             reply.code(201).send({
@@ -587,16 +660,16 @@ exports.post_report = async (req, reply) => {
                 type,
                 summary,
                 description
-            }).save((err,r)=>{
-                if(err){
+            }).save((err, r) => {
+                if (err) {
                     reply.code(200).send({
-                        code:'fail',
-                        msg:'举报失败'
-                    })    
+                        code: 'fail',
+                        msg: '举报失败'
+                    })
                 }
                 reply.code(200).send({
-                    code:'success',
-                    msg:'举报成功'
+                    code: 'success',
+                    msg: '举报成功'
                 })
             })
         }
