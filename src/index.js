@@ -61,6 +61,21 @@ swagger.options.swagger.tags = [{
 }, {
   name: 'private-account-rest',
   description: '  (需要授权)账号系统相关API'
+}, {
+  name: 'news-rest',
+  description: '  校园资讯模块相关API'
+}, {
+  name: 'comment-rest',
+  description: '  评论系统相关API'
+}, {
+  name: 'second-rest',
+  description: '  二手物品模块相关API'
+}, {
+  name: 'release-rest',
+  description: '  信息发布模块相关API'
+}, {
+  name: 'activity-rest',
+  description: '  校园活动模块相关API'
 }]
 swagger.options.routePrefix = 'account'
 // fastify.register(require('fastify-swagger'), swagger.options)
@@ -95,6 +110,8 @@ mongoose.connect('mongodb://localhost:27017/school_bbs', {
 // require('./mock/like')(10)
 
 // require('./mock/likeSecondHand')(15)
+
+// require('./mock/me')()
 
 //添加通用schema
 fastify.addSchema(require('./common/schema/account.js'))

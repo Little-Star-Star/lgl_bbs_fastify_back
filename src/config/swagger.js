@@ -11,11 +11,6 @@ exports.options = {
       url: 'https://swagger.io',
       description: 'Find more info here'
     },
-    // contact:{
-    //   name:'light',
-    //   url:'https://github.com/Little-Star-Star',
-    //   email:'2319513900@qq.com'
-    // },
     host: 'localhost:3000',
     schemes: ['http'],
     consumes: ['application/json;charset=utf-8'],

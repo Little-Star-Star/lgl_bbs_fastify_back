@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-03-06 13:50:56 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-05-24 16:17:59
+ * @Last Modified time: 2019-05-29 17:02:30
  */
 
 /*************************REST***********************/
@@ -34,9 +34,27 @@ exports.schema_collect = {
 exports.schema_mySecondHandList = {
 	summary: "获取个人二手物品列表",
 	description: "获取个人二手物品列表",
-	tags: ['news-rest'],
+	tags: ['second-rest'],
 	response: {
 		200: 'res200withdataandpage#'
+	}
+}
+
+exports.schema_modifySecondHand = {
+	summary: '修改二手物品',
+	description: '修改二手物品',
+	tags: ['second-rest'],
+	response: {
+		200: 'res200#'
+	}
+}
+
+exports.schema_deleteSecondHand = {
+	summary: '删除校二手物品',
+	description: '删除二手物品',
+	tags: ['second-rest'],
+	response: {
+		200: 'res200#'
 	}
 }
 

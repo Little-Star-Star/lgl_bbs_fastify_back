@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-04-30 23:16:24 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-05-24 20:04:42
+ * @Last Modified time: 2019-05-29 17:23:33
  */
 const model_secondHand = require('../models/secondHand')
 const model_secondHandComment = require('../models/secondHandComment')
@@ -128,8 +128,10 @@ exports.post_mySecondHandList = async (req, reply) => {
     const userId = req.session ? req.session.userId : ''
     let {
         pageIndex,
-        pageSize
+        pageSize,
+        keyword = ""
     } = req.body
+    const titleReg = new RegExp(keyword, "i")
     try {
         if (!req.userLogin || !userId) {
             reply.code(201).send({
@@ -137,24 +139,34 @@ exports.post_mySecondHandList = async (req, reply) => {
                 msg: '您还未登录,请登录!'
             })
         } else {
-            const r = await model_secondHand.find({}).select({
-                covers:1,
-                title:1,
-                createTime:1,
-                _id:1
-            })
-            .sort({
-                createTime: -1
-            })
-            .skip((pageIndex-1) * pageSize)
-            .limit(pageSize)
-            .lean()
-            const total = await model_news.find({}).countDocuments()
+            const r = await model_secondHand.find({
+                    "user": userId,
+                    "title": {
+                        $regex: titleReg
+                    }
+                }).select({
+                    covers: 1,
+                    title: 1,
+                    createTime: 1,
+                    _id: 1
+                })
+                .sort({
+                    createTime: -1
+                })
+                .skip((pageIndex - 1) * pageSize)
+                .limit(pageSize)
+                .lean()
+            const total = await model_secondHand.find({
+                "user": userId,
+                "title": {
+                    $regex: titleReg
+                }
+            }).countDocuments()
             reply.code(200).send({
                 code: 'success',
                 msg: '获取个人二手物品列表成功',
                 data: r,
-                page:{
+                page: {
                     pageIndex,
                     pageSize,
                     total
@@ -267,6 +279,98 @@ exports.get_likeSecondHand = async (req, reply) => {
                 msg: '获取所有个人与二手物品的关联数据',
                 code: 'success',
                 data: r
+            })
+        }
+    } catch (error) {
+        throw boom.boomify(error)
+    }
+}
+
+/**
+ * 修改校园资讯
+ *
+ * @param {*} req
+ * @param {*} reply
+ */
+exports.post_modifySecondHand = async (req, reply) => {
+    const userId = req.session ? req.session.userId : ''
+    let {
+        secondhandId,
+        covers,
+        title,
+        type,
+        talkPrice,
+        address,
+        newDegree,
+        dealType,
+        link,
+        description,
+        originPrice,
+        price
+    } = req.body
+    try {
+        if (!req.userLogin || !userId) {
+            reply.code(201).send({
+                code: 'fail',
+                msg: '您还未登录,请登录!'
+            })
+        } else {
+            const r = await model_secondHand.findOneAndUpdate({
+                _id: secondhandId
+            }, {
+                covers,
+                title,
+                type,
+                talkPrice,
+                address,
+                newDegree,
+                dealType,
+                link,
+                description,
+                originPrice,
+                price
+            })
+            if(r){
+                reply.code(200).send({
+                    code: 'success',
+                    msg: '修改二手物品成功'
+                })
+            }else{
+                reply.code(201).send({
+                    code: 'fail',
+                    msg: '修改失败'
+                })
+            }
+        }
+    } catch (error) {
+        throw boom.boomify(error)
+    }
+}
+
+/**
+ * 删除校园资讯
+ *
+ * @param {*} req
+ * @param {*} reply
+ */
+exports.post_deleteSecondHand = async (req, reply) => {
+    const userId = req.session ? req.session.userId : ''
+    let {
+        secondHandId,
+    } = req.params
+    try {
+        if (!req.userLogin || !userId) {
+            reply.code(201).send({
+                code: 'fail',
+                msg: '您还未登录,请登录!'
+            })
+        } else {
+            const r = await model_secondHand.findOneAndDelete({
+                _id: secondHandId
+            })
+            reply.code(200).send({
+                code: 'success',
+                msg: '删除二手物品成功'
             })
         }
     } catch (error) {

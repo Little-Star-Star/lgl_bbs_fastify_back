@@ -2,14 +2,16 @@
  * @Author: 李国亮 
  * @Date: 2019-04-30 23:16:24 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-05-24 20:10:20
+ * @Last Modified time: 2019-05-30 02:46:19
  */
 const model_news = require('../models/news')
+const model_secondHand = require('../models/secondHand')
 const model_userInfo = require('../models/userInfo')
 const model_follow = require('../models/follow')
 const model_like = require('../models/like')
 const model_feedback = require('../models/feedback')
 const model_report = require('../models/report')
+const model_me = require('../models/me')
 const boom = require('boom')
 /*************************REST***********************/
 /**
@@ -174,8 +176,10 @@ exports.post_myNewsList = async (req, reply) => {
     const userId = req.session ? req.session.userId : ''
     let {
         pageIndex,
-        pageSize
+        pageSize,
+        keyword
     } = req.body
+    const titleReg = new RegExp(keyword, "i")
     try {
         if (!req.userLogin || !userId) {
             reply.code(201).send({
@@ -184,7 +188,10 @@ exports.post_myNewsList = async (req, reply) => {
             })
         } else {
             const r = await model_news.find({
-                    "userId": userId
+                    "userId": userId,
+                    "title": {
+                        $regex: titleReg
+                    }
                 }).select({
                     cover: 1,
                     title: 1,
@@ -196,7 +203,12 @@ exports.post_myNewsList = async (req, reply) => {
                 .skip((pageIndex - 1) * pageSize)
                 .limit(pageSize)
                 .lean()
-            const total = await model_news.find({}).countDocuments()
+            const total = await model_news.find({
+                "userId": userId,
+                "title": {
+                    $regex: titleReg
+                }
+            }).countDocuments()
             reply.code(200).send({
                 code: 'success',
                 msg: '获取个人校园资讯列表成功',
@@ -671,6 +683,152 @@ exports.post_report = async (req, reply) => {
                     code: 'success',
                     msg: '举报成功'
                 })
+            })
+        }
+    } catch (error) {
+        throw boom.boomify(error)
+    }
+}
+
+/**
+ * 修改校园资讯
+ *
+ * @param {*} req
+ * @param {*} reply
+ */
+exports.post_modifyNews = async (req, reply) => {
+    const userId = req.session ? req.session.userId : ''
+    let {
+        newsId,
+        title,
+        kind,
+        cover,
+        keyword,
+        content
+    } = req.body
+    try {
+        if (!req.userLogin || !userId) {
+            reply.code(201).send({
+                code: 'fail',
+                msg: '您还未登录,请登录!'
+            })
+        } else {
+            const r = await model_news.findOneAndUpdate({
+                _id: newsId
+            }, {
+                title,
+                kind,
+                cover,
+                keyword,
+                content
+            })
+            reply.code(200).send({
+                code: 'success',
+                msg: '修改校园资讯成功'
+            })
+        }
+    } catch (error) {
+        throw boom.boomify(error)
+    }
+}
+
+/**
+ * 删除校园资讯
+ *
+ * @param {*} req
+ * @param {*} reply
+ */
+exports.post_deleteNews = async (req, reply) => {
+    const userId = req.session ? req.session.userId : ''
+    let {
+        newsId,
+    } = req.params
+    try {
+        if (!req.userLogin || !userId) {
+            reply.code(201).send({
+                code: 'fail',
+                msg: '您还未登录,请登录!'
+            })
+        } else {
+            const r = await model_news.findOneAndDelete({
+                _id: newsId
+            })
+            reply.code(200).send({
+                code: 'success',
+                msg: '删除校园资讯成功'
+            })
+        }
+    } catch (error) {
+        throw boom.boomify(error)
+    }
+}
+
+/**
+ * 获取自己所有所有浏览记录
+ * /private/view/list
+ * @param {*} req 
+ * @param {*} reply
+ */
+exports.post_myViewList = async (req, reply) => {
+    const userId = req.session ? req.session.userId : ''
+    let {
+        pageIndex=1,
+        pageSize=10,
+    } = req.body
+    try {
+        if (!req.userLogin || !userId) {
+            reply.code(201).send({
+                code: 'fail',
+                msg: '您还未登录,请登录!'
+            })
+        } else {
+            const r = await model_me.findOne({
+                user: userId
+            }).lean()
+            let arr = []
+            if (r && r.views) {
+                for (let i = (pageIndex - 1) * pageSize; i < pageIndex * pageSize && i < r.views.length; i++) {
+                    let r1 = ''
+                    if (r.views[i].type === 0) {
+                        r1 = await model_news.findById(r.views[i].itemId)
+                            .select({
+                                _id: 1,
+                                cover: 1,
+                                title: 1,
+                                createTime: 1,
+                                kind:1,
+                            })
+                            .sort({
+                                createTime: -1
+                            }).lean()
+                    } else if (r.views[i].type === 1) {
+                        r1 = await model_secondHand.findById(r.views[i].itemId)
+                            .select({
+                                _id: 1,
+                                covers: 1,
+                                title: 1,
+                                createTime: 1,
+                                type:1
+                            })
+                            .sort({
+                                createTime: -1
+                            }).lean()
+                        r1.covers = r1.covers&&r1.covers.length ? r1.covers[0] : 'lij_logo_circle.png'
+                    }
+                    arr.push(r1)
+                }
+            } else {
+                arr = []
+            }
+            reply.code(200).send({
+                code: 'success',
+                msg: '获取个人浏览记录成功',
+                data: arr,
+                page: {
+                    pageIndex,
+                    pageSize,
+                    total:r.views&&r.views.length ? r.views.length : 0
+                }
             })
         }
     } catch (error) {
