@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-03-05 14:07:17 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-05-30 02:19:13
+ * @Last Modified time: 2019-05-31 01:33:39
  */
 
 //  用于处理校园资讯相关
@@ -118,6 +118,27 @@ module.exports = [
 		handler: ctrl_news.post_myViewList,
 		schema: doc_news.schema_myViewsList
 	},
+	//获取个人关注列表
+	{
+		method: 'POST',
+		url: '/private/followTa/list',
+		handler: ctrl_news.post_myFollowTaList,
+		schema: doc_news.schema_myFollowTaList
+	},
+	//获取个人粉丝列表
+	{
+		method: 'POST',
+		url: '/private/followMe/list',
+		handler: ctrl_news.post_myFollowMeList,
+		schema: doc_news.schema_myFollowMeList
+	},
+	//获取所有收藏列表
+	{
+		method: 'POST',
+		url: '/private/allCollect/list',
+		handler: ctrl_news.get_myAllCollectList,
+		schema: doc_news.schema_myAllCollectList
+	},
 	//修改校园资讯
 	{
 		method: 'POST',
@@ -131,5 +152,12 @@ module.exports = [
 		url: '/private/news/delete/:newsId',
 		handler: ctrl_news.post_deleteNews,
 		schema: doc_news.schema_deleteNews
+	},
+	//清空所有浏览记录
+	{
+		method: 'GET',
+		url: '/private/view/delete',
+		handler: ctrl_news.get_deleteMyViewList,
+		schema: doc_news.schema_deleteMyViewList
 	},
 ]

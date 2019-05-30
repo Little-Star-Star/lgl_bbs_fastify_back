@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-04-02 22:00:19 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-05-20 01:40:31
+ * @Last Modified time: 2019-05-30 18:31:59
  */
 const {isPhone,encode,decode,sixNumber,generateCode} = require('../common/tool')
 
@@ -72,6 +72,8 @@ exports.post_loginWithPassword = async (req, reply) => {
 				// .header('Access-Control-Allow-Origin', 'http://localhost:8081')
 				.setCookie('userlogin',req.session.encryptedSessionId,{
 					path:'/',
+					// domain:'lightlovexujia.top',
+					maxAge:1000 * 60 * 15
 				})
 				.send({
 					code: 'success',
@@ -408,6 +410,7 @@ exports.post_private_updateBindedAccount = async (req, reply) => {
 				delete updatedUser.account.psw
 				reply.code(200).setCookie('userlogin',req.session.encryptedSessionId,{
 					path:'/',
+					maxAge:1000 * 60 * 15
 				}).send({
 					code:'success',
 					msg:'修改邮箱成功',	

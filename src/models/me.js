@@ -3,6 +3,7 @@ const monogoose = require('mongoose')
 const meSchema = new monogoose.Schema({
 	user:{type:monogoose.Schema.Types.ObjectId,ref:'UserInfo'},
 	views:[{
+		time:{type:Date}, //浏览时间
 		type:{type:Number}, // 0 - 校园资讯 1 - 二手物品
 		itemId:{
 			type:monogoose.Schema.Types.ObjectId

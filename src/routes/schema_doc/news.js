@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-03-06 13:50:56 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-05-29 02:36:13
+ * @Last Modified time: 2019-05-31 01:32:33
  */
 
 /*************************REST***********************/
@@ -129,6 +129,32 @@ exports.schema_myViewsList = {
 	}
 }
 
+exports.schema_myFollowTaList = {
+	summary: "获取个人关注列表",
+	description: "获取个人关注列表",
+	tags: ['news-rest'],
+	response: {
+		200: 'res200withdataandpage#'
+	}
+}
+
+exports.schema_myFollowMeList = {
+	summary: "获取个人粉丝列表",
+	description: "获取个人粉丝列表",
+	tags: ['news-rest'],
+	response: {
+		200: 'res200withdataandpage#'
+	}
+}
+
+exports.schema_myAllCollectList = {
+	summary: "获取所有收藏列表",
+	description: "获取所有收藏列表",
+	tags: ['news-rest'],
+	response: {
+		200: 'res200withdata#'
+	}
+}
 exports.schema_modifyNews = {
 	summary: '修改校园资讯',
 	description: '修改校园资讯',
@@ -138,12 +164,20 @@ exports.schema_modifyNews = {
 	}
 }
 
-exports.schema_deleteNews = {
-	summary: '删除校园资讯',
-	description: '删除校园资讯',
+exports.schema_modifyNews = {
+	summary: '修改校园资讯',
+	description: '修改校园资讯',
 	tags: ['news-rest'],
 	response: {
 		200: 'res200#'
 	}
 }
 
+exports.schema_deleteMyViewList = {
+	summary: '清空所有个人浏览记录',
+	description: '清空所有个人浏览记录',
+	tags: ['news-rest'],
+	response: {
+		200: 'res200#'
+	}
+}

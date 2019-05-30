@@ -111,8 +111,6 @@ mongoose.connect('mongodb://localhost:27017/school_bbs', {
 
 // require('./mock/likeSecondHand')(15)
 
-// require('./mock/me')()
-
 //添加通用schema
 fastify.addSchema(require('./common/schema/account.js'))
 fastify.addSchema(require('./common/schema/res200'))

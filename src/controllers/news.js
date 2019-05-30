@@ -2,13 +2,14 @@
  * @Author: 李国亮 
  * @Date: 2019-04-30 23:16:24 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-05-30 02:46:19
+ * @Last Modified time: 2019-05-31 03:41:24
  */
 const model_news = require('../models/news')
 const model_secondHand = require('../models/secondHand')
 const model_userInfo = require('../models/userInfo')
 const model_follow = require('../models/follow')
 const model_like = require('../models/like')
+const model_likeSecondHand = require('../models/likeSecondHand')
 const model_feedback = require('../models/feedback')
 const model_report = require('../models/report')
 const model_me = require('../models/me')
@@ -267,20 +268,53 @@ exports.post_hotTopic = async (req, reply) => {
  * @param {*} reply
  */
 exports.get_newsDetail = async (req, reply) => {
+    const userId = req.session ? req.session.userId : ''
+    let {
+        newsId
+    } = req.params
     try {
-        let r = await model_news.findById(req.params.newsId)
-        if (r.userId) {
-            r = r.toObject()
-            const user = await model_userInfo.findById(r.userId).select({
-                'account': 0
+        let r = await model_news.findById(newsId)
+            ++r.statics.view;
+        if (userId) {
+            // 浏览记录
+            let me = await model_me.findOne({
+                'user': userId
             })
-            r.user = user.toObject()
-            reply.code(200).send({
-                code: 'success',
-                msg: '',
-                data: r,
+            if (!me) {
+                me = new model_me({
+                    user: userId,
+                    views: [{
+                        time: new Date(),
+                        type: 0,
+                        itemId: newsId
+                    }]
+                })
+            } else {
+                me.views.unshift({
+                    type: 0,
+                    itemId: newsId
+                })
+            }
+            me.save((err, product) => {
+                if (err) console.log(err)
+                console.log('save view success')
             })
         }
+        r.save(async (err, product) => {
+            if (err) console.log(err)
+            if (r.userId) {
+                r = r.toObject()
+                const user = await model_userInfo.findById(r.userId).select({
+                    'account': 0
+                })
+                r.user = user.toObject()
+                reply.code(200).send({
+                    code: 'success',
+                    msg: '',
+                    data: r,
+                })
+            }
+        })
     } catch (error) {
         throw boom.boomify(error)
     }
@@ -772,8 +806,8 @@ exports.post_deleteNews = async (req, reply) => {
 exports.post_myViewList = async (req, reply) => {
     const userId = req.session ? req.session.userId : ''
     let {
-        pageIndex=1,
-        pageSize=10,
+        pageIndex = 1,
+            pageSize = 10,
     } = req.body
     try {
         if (!req.userLogin || !userId) {
@@ -795,8 +829,7 @@ exports.post_myViewList = async (req, reply) => {
                                 _id: 1,
                                 cover: 1,
                                 title: 1,
-                                createTime: 1,
-                                kind:1,
+                                kind: 1,
                             })
                             .sort({
                                 createTime: -1
@@ -807,14 +840,14 @@ exports.post_myViewList = async (req, reply) => {
                                 _id: 1,
                                 covers: 1,
                                 title: 1,
-                                createTime: 1,
-                                type:1
+                                type: 1
                             })
                             .sort({
                                 createTime: -1
                             }).lean()
-                        r1.covers = r1.covers&&r1.covers.length ? r1.covers[0] : 'lij_logo_circle.png'
+                        r1.covers = r1.covers && r1.covers.length ? r1.covers[0] : 'lij_logo_circle.png'
                     }
+                    r1.createTime = r.views[i].time
                     arr.push(r1)
                 }
             } else {
@@ -827,8 +860,220 @@ exports.post_myViewList = async (req, reply) => {
                 page: {
                     pageIndex,
                     pageSize,
-                    total:r.views&&r.views.length ? r.views.length : 0
+                    total: r.views && r.views.length ? r.views.length : 0
                 }
+            })
+        }
+    } catch (error) {
+        throw boom.boomify(error)
+    }
+}
+
+/**
+ * 获取自己所有关注的人
+ * /private/followTa/list
+ * @param {*} req 
+ * @param {*} reply
+ */
+exports.post_myFollowTaList = async (req, reply) => {
+    const userId = req.session ? req.session.userId : ''
+    let {
+        pageIndex = 1,
+            pageSize = 20,
+    } = req.body
+    try {
+        if (!req.userLogin || !userId) {
+            reply.code(201).send({
+                code: 'fail',
+                msg: '您还未登录,请登录!'
+            })
+        } else {
+            const total = await model_follow.find({
+                user: userId
+            }).countDocuments()
+            const r = await model_follow.find({
+                    user: userId
+                })
+                .populate('userFollowed', {
+                    'account': 0
+                })
+                .limit(pageSize)
+                .skip((pageIndex - 1) * pageSize)
+                .sort({
+                    createTime: -1
+                })
+            if (r) {
+                reply.code(200).send({
+                    code: 'success',
+                    msg: '获取个人关注列表成功',
+                    data: r,
+                    page: {
+                        pageIndex,
+                        pageSize,
+                        total
+                    }
+                })
+            }
+        }
+    } catch (error) {
+        throw boom.boomify(error)
+    }
+}
+
+
+/**
+ * 获取所有关注自己的人
+ * /private/followMe/list
+ * @param {*} req 
+ * @param {*} reply
+ */
+exports.post_myFollowMeList = async (req, reply) => {
+    const userId = req.session ? req.session.userId : ''
+    let {
+        pageIndex = 1,
+            pageSize = 20,
+    } = req.body
+    try {
+        if (!req.userLogin || !userId) {
+            reply.code(201).send({
+                code: 'fail',
+                msg: '您还未登录,请登录!'
+            })
+        } else {
+            const total = await model_follow.find({
+                userFollowed: userId
+            }).countDocuments()
+            const r = await model_follow.find({
+                    userFollowed: userId
+                })
+                .populate('user', {
+                    'account': 0
+                })
+                .limit(pageSize)
+                .skip((pageIndex - 1) * pageSize)
+                .sort({
+                    createTime: -1
+                })
+            if (r) {
+                reply.code(200).send({
+                    code: 'success',
+                    msg: '获取个人关注列表成功',
+                    data: r,
+                    page: {
+                        pageIndex,
+                        pageSize,
+                        total
+                    }
+                })
+            }
+        }
+    } catch (error) {
+        throw boom.boomify(error)
+    }
+}
+/**
+ * 清空自己所有浏览记录
+ * /private/view/delete
+ * @param {*} req 
+ * @param {*} reply
+ */
+exports.get_deleteMyViewList = async (req, reply) => {
+    const userId = req.session ? req.session.userId : ''
+    try {
+        if (!req.userLogin || !userId) {
+            reply.code(201).send({
+                code: 'fail',
+                msg: '您还未登录,请登录!'
+            })
+        } else {
+            const r = await model_me.findOneAndDelete({
+                user: userId
+            })
+            reply.code(200).send({
+                code: 'success',
+                msg: '清空个人浏览记录成功',
+            })
+        }
+    } catch (error) {
+        throw boom.boomify(error)
+    }
+}
+
+/**
+ *  获取所有收藏（二手物品+校园资讯）
+ * /private/allCollect/list
+ * @param {*} req 
+ * @param {*} reply
+ */
+exports.get_myAllCollectList = async (req, reply) => {
+    const userId = req.session ? req.session.userId : ''
+    let {
+        keyword = "",
+    } = req.body || {}
+    let titleRegex = new RegExp(keyword, 'i')
+    try {
+        if (!req.userLogin || !userId) {
+            reply.code(201).send({
+                code: 'fail',
+                msg: '您还未登录,请登录!'
+            })
+        } else {
+            let r1 = await model_like.find({
+                    user: userId
+                })
+                .populate({
+                    path: 'news',
+                    match: {
+                        title: {
+                            $regex: titleRegex
+                        }
+                    },
+                    select: {
+                        _id: 1,
+                        title: 1,
+                        kind: 1,
+                        cover: 1,
+                        createTime: 1,
+                    }
+                })
+                .sort({
+                    updateTime: -1
+                }).lean()
+
+            let r2 = await model_likeSecondHand.find({
+                    user: userId
+                })
+                .populate({
+                    path: 'secondhand',
+                    match: {
+                        title: {
+                            $regex: titleRegex
+                        }
+                    },
+                    select: {
+                        _id: 1,
+                        title: 1,
+                        type: 1,
+                        covers: 1,
+                        createTime: 1,
+                    }
+                })
+                .sort({
+                    updateTime: -1
+                }).lean()
+            r1 = r1.filter(d => {
+                return d.news
+            })
+            r2 = r2.filter((d) => {
+                if (d.secondhand)
+                    d.secondhand.covers = d.secondhand.covers && d.secondhand.covers.length ? d.secondhand.covers[0] : 'lij_circle_logo.png'
+                return d.secondhand
+            })
+            let r = [...r1, ...r2]
+            reply.code(200).send({
+                code: 'success',
+                msg: '获取我的收藏成功',
+                data: r
             })
         }
     } catch (error) {

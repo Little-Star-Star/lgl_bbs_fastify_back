@@ -2,11 +2,12 @@
  * @Author: 李国亮 
  * @Date: 2019-04-30 23:16:24 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-05-29 17:23:33
+ * @Last Modified time: 2019-05-31 03:22:33
  */
 const model_secondHand = require('../models/secondHand')
 const model_secondHandComment = require('../models/secondHandComment')
 const model_userInfo = require('../models/userInfo')
+const model_me = require('../models/me')
 const model_like = require('../models/likeSecondHand')
 const boom = require('boom')
 const mongoose = require('mongoose')
@@ -98,6 +99,7 @@ exports.post_secondHandList = async (req, reply) => {
  * @param {*} reply
  */
 exports.get_secondHandDetail = async (req, reply) => {
+    const userId = req.session ? req.session.userId : ''
     try {
         let {
             itemId
@@ -107,11 +109,40 @@ exports.get_secondHandDetail = async (req, reply) => {
                 path: 'user',
                 select: "-account"
             })
-            .lean()
-        reply.code(200).send({
-            code: 'success',
-            msg: '',
-            data: r,
+        if (userId) {
+            // 浏览记录
+            let me = await model_me.findOne({
+                'user': userId
+            })
+            if (!me) {
+                me = new model_me({
+                    user: userId,
+                    views: [{
+                        time: new Date(),
+                        type: 1,
+                        itemId: itemId
+                    }]
+                })
+            } else {
+                me.views.unshift({
+                    time:new Date(),
+                    type: 1,
+                    itemId: itemId
+                })
+            }
+            me.save((err, product) => {
+                if (err) console.log(err)
+                console.log('save secondhand view success')
+            })
+        }
+        ++r.statics.view
+        r.save((err, product) => {
+            if (err) console.log(err)
+            reply.code(200).send({
+                code: 'success',
+                msg: '',
+                data: r,
+            })
         })
     } catch (error) {
         throw boom.boomify(error)
@@ -330,12 +361,12 @@ exports.post_modifySecondHand = async (req, reply) => {
                 originPrice,
                 price
             })
-            if(r){
+            if (r) {
                 reply.code(200).send({
                     code: 'success',
                     msg: '修改二手物品成功'
                 })
-            }else{
+            } else {
                 reply.code(201).send({
                     code: 'fail',
                     msg: '修改失败'
