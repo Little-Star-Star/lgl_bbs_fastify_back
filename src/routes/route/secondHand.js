@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-03-05 14:07:17 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-05-29 17:03:31
+ * @Last Modified time: 2019-05-31 15:23:06
  */
 
 //  用于处理校园资讯相关
@@ -47,6 +47,13 @@ module.exports = [
 		url: '/private/secondhand/list',
 		handler: ctrl_secondHand.post_mySecondHandList,
 		schema: doc_secondHand.schema_mySecondHandList
+	},
+	//获取所有二手物品列表
+	{
+		method: 'POST',
+		url: '/private/admin/secondhand/list',
+		handler: ctrl_secondHand.post_adminSecondHandList,
+		schema: doc_secondHand.schema_adminSecondHandList
 	},
 	//修改二手物品
 	{

@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-04-30 23:16:24 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-05-31 03:41:24
+ * @Last Modified time: 2019-05-31 23:57:40
  */
 const model_news = require('../models/news')
 const model_secondHand = require('../models/secondHand')
@@ -223,6 +223,233 @@ exports.post_myNewsList = async (req, reply) => {
         }
     } catch (error) {
         throw boom.boomify(error)
+    }
+}
+/**
+ * 获取所有News admin
+ * /private/admin/news/list
+ * @param {*} req 
+ * @param {*} reply
+ */
+exports.post_adminNewsList = async (req, reply) => {
+    const userId = req.session ? req.session.userId : ''
+    const adminUser = await model_userInfo.findById(userId)
+    if (adminUser && adminUser.account && adminUser.account.type === 'admin') {
+        let {
+            pageIndex,
+            pageSize,
+            keyword
+        } = req.body
+        const titleReg = new RegExp(keyword, "i")
+        try {
+            if (!req.userLogin || !userId) {
+                reply.code(201).send({
+                    code: 'fail',
+                    msg: '您还未登录,请登录!'
+                })
+            } else {
+                const r = await model_news.find({
+                        "title": {
+                            $regex: titleReg
+                        }
+                    }).select({
+                        cover: 1,
+                        title: 1,
+                        createTime: 1,
+                        _id: 1
+                    }).sort({
+                        createTime: -1
+                    })
+                    .skip((pageIndex - 1) * pageSize)
+                    .limit(pageSize)
+                    .lean()
+                const total = await model_news.find({
+                    "title": {
+                        $regex: titleReg
+                    }
+                }).countDocuments()
+                reply.code(200).send({
+                    code: 'success',
+                    msg: '获取所有校园资讯列表成功',
+                    data: r,
+                    page: {
+                        pageIndex,
+                        pageSize,
+                        total
+                    }
+                })
+            }
+        } catch (error) {
+            throw boom.boomify(error)
+        }
+    } else {
+        reply.code(201).send({
+            code: 'fail',
+            msg: '请使用管理员账号登录!'
+        })
+    }
+
+}
+
+/**
+ * 获取所有举报 admin
+ * /private/admin/report/list
+ * @param {*} req 
+ * @param {*} reply
+ */
+exports.post_adminReportList = async (req, reply) => {
+    const userId = req.session ? req.session.userId : ''
+    const adminUser = await model_userInfo.findById(userId)
+    if (adminUser && adminUser.account && adminUser.account.type === 'admin') {
+        let {
+            pageIndex,
+            pageSize,
+        } = req.body
+        try {
+            if (!req.userLogin || !userId) {
+                reply.code(201).send({
+                    code: 'fail',
+                    msg: '您还未登录,请登录!'
+                })
+            } else {
+                const total = await model_report.find().countDocuments()
+                const r = await model_report.find({})
+                    .skip((pageIndex - 1) * pageSize)
+                    .limit(pageSize).sort({
+                        updateTime: -1
+                    }).lean()
+                for (let i = 0; i < r.length; i++) {
+                    if (r[i].type === 'news') {
+                        let r1 = await model_news.findById(r[i].reportedId)
+                            .populate({
+                                path: 'userId',
+                                select: {
+                                    account: 0
+                                }
+                            }).lean()
+                        if (r1) {
+                            r[i].news = r1
+                        }
+                    } else if (r[i].type === 'secondhand') {
+                        let r1 = await model_secondHand.findById(r[i].reportedId)
+                            .populate({
+                                path: 'user',
+                                select: {
+                                    account: 0
+                                }
+                            }).lean()
+                        if (r1) {
+                            r[i].secondhand = r1
+                        }
+                    }
+                }
+                reply.code(200).send({
+                    code: 'success',
+                    msg: '获取举报列表成功',
+                    data: r,
+                    page: {
+                        pageIndex,
+                        pageSize,
+                        total
+                    }
+                })
+
+            }
+        } catch (error) {
+            throw boom.boomify(error)
+        }
+    } else {
+        reply.code(201).send({
+            code: 'fail',
+            msg: '请使用管理员账号登录!'
+        })
+    }
+}
+
+/**
+ * 获取所有反馈 admin
+ * /private/admin/feedback/list
+ * @param {*} req 
+ * @param {*} reply
+ */
+exports.post_adminFeedbakcList = async (req, reply) => {
+    const userId = req.session ? req.session.userId : ''
+    const adminUser = await model_userInfo.findById(userId)
+    if (adminUser && adminUser.account && adminUser.account.type === 'admin') {
+        let {
+            pageIndex,
+            pageSize,
+        } = req.body
+        try {
+            if (!req.userLogin || !userId) {
+                reply.code(201).send({
+                    code: 'fail',
+                    msg: '您还未登录,请登录!'
+                })
+            } else {
+                const total = await model_feedback.find().countDocuments()
+                const r = await model_feedback.find({}).populate({
+                    path: 'user',
+                    select: {
+                        account: 0
+                    }
+                }).skip((pageIndex - 1) * pageSize).limit(pageSize).lean()
+                reply.code(200).send({
+                    code: 'success',
+                    msg: '获取反馈列表成功',
+                    data: r,
+                    page: {
+                        pageIndex,
+                        pageSize,
+                        total
+                    }
+                })
+            }
+        } catch (error) {
+            throw boom.boomify(error)
+        }
+    } else {
+        reply.code(201).send({
+            code: 'fail',
+            msg: '请使用管理员账号登录!'
+        })
+    }
+}
+
+/**
+ * 删除所有反馈 admin
+ * /private/admin/feedback/delete
+ * @param {*} req 
+ * @param {*} reply
+ */
+exports.get_adminFeedbackDelete = async (req, reply) => {
+    const userId = req.session ? req.session.userId : ''
+    const adminUser = await model_userInfo.findById(userId)
+    if (adminUser && adminUser.account && adminUser.account.type === 'admin') {
+        try {
+            if (!req.userLogin || !userId) {
+                reply.code(201).send({
+                    code: 'fail',
+                    msg: '您还未登录,请登录!'
+                })
+            } else {
+                await model_feedback.remove((err) => {
+                    if (err) console.log(err)
+                    console.log('remove all feedback success')
+                })
+                reply.code(200).send({
+                    code: 'success',
+                    msg: '清空所有反馈成功',
+                })
+            }
+        } catch (error) {
+            throw boom.boomify(error)
+        }
+    } else {
+        reply.code(201).send({
+            code: 'fail',
+            msg: '请使用管理员账号登录!'
+        })
     }
 }
 /**
@@ -701,6 +928,55 @@ exports.post_report = async (req, reply) => {
                 msg: '您还未登录,请登录!'
             })
         } else {
+            if (type === 'news') {
+                let like = await model_like.findOne({
+                    user: userId,
+                    news: reportedId
+                })
+                if (!like) {
+                    like = new model_like({
+                        news: reportedId,
+                        comment: [],
+                        report: {
+                            text: description,
+                            time: new Date()
+                        }
+                    })
+                } else {
+                    like.report = {
+                        text: description,
+                        time: new Date()
+                    }
+                }
+                like.save((err, product) => {
+                    if (err) console.log(err)
+                    console.log('save report of news to Like Collect')
+                })
+            } else if (type === 'secondhand') {
+                let like = await model_likeSecondHand.findOne({
+                    user: userId,
+                    secondhand: reportedId
+                })
+                if (!like) {
+                    like = new model_likeSecondHand({
+                        secondhand: reportedId,
+                        comment: [],
+                        report: {
+                            text: description,
+                            time: new Date()
+                        }
+                    })
+                } else {
+                    like.report = {
+                        text: description,
+                        time: new Date()
+                    }
+                }
+                like.save((err, product) => {
+                    if (err) console.log(err)
+                    console.log('save report of news to Like Collect')
+                })
+            }
             new model_report({
                 reportedId,
                 type,
@@ -774,6 +1050,7 @@ exports.post_modifyNews = async (req, reply) => {
  */
 exports.post_deleteNews = async (req, reply) => {
     const userId = req.session ? req.session.userId : ''
+    const adminUser = await model_userInfo.findById(userId)
     let {
         newsId,
     } = req.params
@@ -784,9 +1061,14 @@ exports.post_deleteNews = async (req, reply) => {
                 msg: '您还未登录,请登录!'
             })
         } else {
-            const r = await model_news.findOneAndDelete({
-                _id: newsId
-            })
+            let options = {
+                _id: newsId,
+                userId
+            }
+            if (adminUser && adminUser.account && adminUser.account.type === 'admin') {
+                delete options.userId
+            }
+            const r = await model_news.findOneAndDelete(options)
             reply.code(200).send({
                 code: 'success',
                 msg: '删除校园资讯成功'
@@ -860,7 +1142,7 @@ exports.post_myViewList = async (req, reply) => {
                 page: {
                     pageIndex,
                     pageSize,
-                    total: r.views && r.views.length ? r.views.length : 0
+                    total: r && r.views && r.views.length ? r.views.length : 0
                 }
             })
         }
@@ -1022,6 +1304,12 @@ exports.get_myAllCollectList = async (req, reply) => {
                     user: userId
                 })
                 .populate({
+                    path: 'user',
+                    select: {
+                        account: 0
+                    }
+                })
+                .populate({
                     path: 'news',
                     match: {
                         title: {
@@ -1042,6 +1330,12 @@ exports.get_myAllCollectList = async (req, reply) => {
 
             let r2 = await model_likeSecondHand.find({
                     user: userId
+                })
+                .populate({
+                    path: 'user',
+                    select: {
+                        account: 0
+                    }
                 })
                 .populate({
                     path: 'secondhand',
@@ -1080,3 +1374,34 @@ exports.get_myAllCollectList = async (req, reply) => {
         throw boom.boomify(error)
     }
 }
+
+// /**
+//  * 获取所有举报内容 
+//  * /private/report/list
+//  * @param {*} req 
+//  * @param {*} reply
+//  */
+// exports.post_myReportList = async (req, reply) => {
+//     const userId = req.session ? req.session.userId : ''
+//     let {
+//         pageIndex = 1,
+//             pageSize = 20,
+//     } = req.body
+//     try {
+//         if (!req.userLogin || !userId) {
+//             reply.code(201).send({
+//                 code: 'fail',
+//                 msg: '您还未登录,请登录!'
+//             })
+//         } else {
+//                 const r = await model_report.find
+//                 reply.code(200).send({
+//                     code: 'success',
+//                     msg: '获取个人举报列表成功',
+//                     data: r,
+//                 })
+//         }
+//     } catch (error) {
+//         throw boom.boomify(error)
+//     }
+// }

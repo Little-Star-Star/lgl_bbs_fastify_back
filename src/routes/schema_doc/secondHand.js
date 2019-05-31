@@ -40,6 +40,16 @@ exports.schema_mySecondHandList = {
 	}
 }
 
+
+exports.schema_adminSecondHandList = {
+	summary: "获取所有二手物品列表",
+	description: "获取所有二手物品列表",
+	tags: ['second-rest'],
+	response: {
+		200: 'res200withdataandpage#'
+	}
+}
+
 exports.schema_modifySecondHand = {
 	summary: '修改二手物品',
 	description: '修改二手物品',

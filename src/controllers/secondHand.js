@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-04-30 23:16:24 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-05-31 03:22:33
+ * @Last Modified time: 2019-05-31 15:42:30
  */
 const model_secondHand = require('../models/secondHand')
 const model_secondHandComment = require('../models/secondHandComment')
@@ -125,7 +125,7 @@ exports.get_secondHandDetail = async (req, reply) => {
                 })
             } else {
                 me.views.unshift({
-                    time:new Date(),
+                    time: new Date(),
                     type: 1,
                     itemId: itemId
                 })
@@ -386,6 +386,7 @@ exports.post_modifySecondHand = async (req, reply) => {
  */
 exports.post_deleteSecondHand = async (req, reply) => {
     const userId = req.session ? req.session.userId : ''
+    const adminUser = await model_userInfo.findById(userId)
     let {
         secondHandId,
     } = req.params
@@ -396,9 +397,14 @@ exports.post_deleteSecondHand = async (req, reply) => {
                 msg: '您还未登录,请登录!'
             })
         } else {
-            const r = await model_secondHand.findOneAndDelete({
-                _id: secondHandId
-            })
+            let options = {
+                _id: secondHandId,
+                user: userId
+            }
+            if (adminUser && adminUser.account && adminUser.account.type === 'admin') {
+                delete options.user
+            }
+            const r = await model_secondHand.findOneAndDelete(options)
             reply.code(200).send({
                 code: 'success',
                 msg: '删除二手物品成功'
@@ -407,4 +413,71 @@ exports.post_deleteSecondHand = async (req, reply) => {
     } catch (error) {
         throw boom.boomify(error)
     }
+}
+
+/**
+ * 获取所有二手物品 admin
+ * /private/admin/secondhand/list
+ * @param {*} req 
+ * @param {*} reply
+ */
+exports.post_adminSecondHandList = async (req, reply) => {
+    const userId = req.session ? req.session.userId : ''
+    const adminUser = await model_userInfo.findById(userId)
+    if (adminUser && adminUser.account && adminUser.account.type === 'admin') {
+        let {
+            pageIndex,
+            pageSize,
+            keyword
+        } = req.body
+        const titleReg = new RegExp(keyword, "i")
+        try {
+            if (!req.userLogin || !userId) {
+                reply.code(201).send({
+                    code: 'fail',
+                    msg: '您还未登录,请登录!'
+                })
+            } else {
+                const r = await model_secondHand.find({
+                        "title": {
+                            $regex: titleReg
+                        }
+                    }).select({
+                        covers: 1,
+                        title: 1,
+                        createTime: 1,
+                        _id: 1
+                    })
+                    .sort({
+                        createTime: -1
+                    })
+                    .skip((pageIndex - 1) * pageSize)
+                    .limit(pageSize)
+                    .lean()
+                const total = await model_secondHand.find({
+                    "title": {
+                        $regex: titleReg
+                    }
+                }).countDocuments()
+                reply.code(200).send({
+                    code: 'success',
+                    msg: '获取个人二手物品列表成功',
+                    data: r,
+                    page: {
+                        pageIndex,
+                        pageSize,
+                        total
+                    }
+                })
+            }
+        } catch (error) {
+            throw boom.boomify(error)
+        }
+    } else {
+        reply.code(201).send({
+            code: 'fail',
+            msg: '请使用管理员账号登录!'
+        })
+    }
+
 }

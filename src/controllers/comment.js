@@ -2,7 +2,7 @@
  * @Author: 李国亮 
  * @Date: 2019-04-30 23:16:24 
  * @Last Modified by: 李国亮
- * @Last Modified time: 2019-05-21 15:56:50
+ * @Last Modified time: 2019-06-01 00:56:06
  */
 const model_news = require('../models/news')
 const model_newsComment = require('../models/newsComment')
@@ -26,6 +26,9 @@ exports.post_newsComment = async (req, reply) => {
                 pageSize
         } = req.body
         // 依据newsId,查找news对应的所有评论
+        let total = await model_newsComment.find({
+            newsId: mongoose.Types.ObjectId(newsId)
+        }).countDocuments()
         let allComments = await model_newsComment.find({
                 newsId: mongoose.Types.ObjectId(newsId)
             })
@@ -65,7 +68,8 @@ exports.post_newsComment = async (req, reply) => {
             data: allComments,
             page: {
                 pageIndex,
-                pageSize
+                pageSize,
+                total
             }
         })
     } catch (error) {
