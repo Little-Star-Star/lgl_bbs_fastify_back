@@ -20,7 +20,7 @@
     "fastify-static": "^2.3.4",
     "formidable": "^1.2.1",
     "mockjs": "^1.0.1-beta3",
-    "mongoose": "^5.3.14",
+    "mongoose": "^5.7.5",
     "nodemon": "^1.18.7",
     "serve-static": "^1.13.2"
   },
