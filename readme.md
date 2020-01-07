@@ -1,4 +1,7 @@
-# A blazing fast REST APIs with Node.js, MongoDB, Fastify and Swagger.
+# BBS 后台
+- swagger 在3000端口
+- [BBS前端 ](https://github.com/Little-Star-Star/lgl_bbs_vue_pc)
+# A blazing fast REST APIs with Node.js, MongoDB, Fastify and  Swagger.
 
 > A Node.js project
 
