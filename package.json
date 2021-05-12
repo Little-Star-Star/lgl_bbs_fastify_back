@@ -28,6 +28,6 @@
     "ali-oss": "^6.1.1",
     "fastify-mongodb": "^0.9.1",
     "fastify-swagger": "^2.3.2",
-    "nodemailer": "^6.1.1"
+    "nodemailer": "^6.4.16"
   }
 }
